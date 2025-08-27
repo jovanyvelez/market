@@ -6,16 +6,16 @@ Sistema de gestión para market pequeño
 from typing import Annotated
 from fastapi.staticfiles import StaticFiles
 from fastapi import FastAPI, Depends
-from app.api.v1.endpoints import categorias
-from app.api.v2.endpoints import categorias as categorias_v2
+from src.api.v1.endpoints import categorias
+from src.api.v2.endpoints import categorias as categorias_v2
 
 
 # Importar configuración y base de datos
 
-from app.core.database import get_session
+from src.core.database import get_session
 from sqlmodel import Session, select,text
 
-from app.models.models import Categoria
+from src.models.models import Categoria
 # Importar routers de la API
 
 
