@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    {%if categorias_hijas%}
+        <ul>
+            {%for categoria in categorias_hijas %}
+                <li>
+                    <a href="/api/v2/categorias/{{categoria["id"]}}/productos">{{categoria["nombre"]}}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if total_productos >0 %}
+        <ul>
+            {%for producto in productos %}
+                <li>
+                    {{producto["nombre"]}}
+                    <img src="{{producto['imagen_url']}}" alt="{{producto["nombre"]}}">
+                </li>
+            {% endfor %}
+        </ul>
+        <pre>{{productos}}</pre>
+    {% endif %}
+</body>
+</html>

@@ -166,6 +166,7 @@ class CRUDCategoria(CRUDBase[Categoria, CategoriaCreate, CategoriaUpdate]):
                 p.precio_venta as precio,
                 p.stock_actual as stock,
                 p.activo,
+                p.imagen_url,
                 ct.nombre as categoria
             FROM categoria_tree ct
             INNER JOIN producto p ON ct.id = p.categoria_id
@@ -182,7 +183,8 @@ class CRUDCategoria(CRUDBase[Categoria, CategoriaCreate, CategoriaUpdate]):
                     "precio": float(row.precio) if row.precio else 0.0,
                     "stock": row.stock,
                     "activo": row.activo,
-                    "categoria": row.categoria
+                    "categoria": row.categoria,
+                    "imagen_url": row.imagen_url,
                 }
                 for row in result
             ]
