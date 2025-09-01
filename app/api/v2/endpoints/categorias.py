@@ -203,9 +203,4 @@ def obtener_productos_descendientes(
 
     return templates.TemplateResponse(name="productos_descendientes.html", request=request, context={"categoria_padre_id": categoria_id, "productos": productos, "total_productos": len(productos), "categorias_hijas": categorias_hijas})
 
-    return ProductosDescendientesResponse(
-        categoria_padre_id=categoria_id,
-        productos=productos,
-        total_productos=len(productos),
-        categorias_hijas=categorias_hijas
-    )
+  

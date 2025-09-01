@@ -1,31 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+        .container_productos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 32px 8px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 10px;
+            min-width: 160px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border: solid 1px #ccc;
+        }
+
+        img {
+            width: 70%;
+            margin: 5px auto;
+            height: auto;
+            border-radius: 10px;
+        }
+        .card span {
+            font-size: 0.8rem;
+            font-weight: bold; 
+        }
+
+        .precio{
+            text-align: start;
+            color: red;
+            margin-left: 15px;
+        }
+
+        .nombre {
+            text-align: center;
+        }
+
+        .card button {
+            margin: 0 auto;
+            padding: 5px;
+            align-self:end;
+            border: none;
+            background-color: red;
+            margin-bottom: 5px;
+            color: white;
+            border-radius: 8px;
+            width: 80%;
+        }
+
+        @media (width > 400px){
+            .container_productos {
+                gap:32px;
+            }
+        }
+    </style>
 </head>
+
 <body>
     {%if categorias_hijas%}
-        <ul>
-            {%for categoria in categorias_hijas %}
-                <li>
-                    <a href="/api/v2/categorias/{{categoria["id"]}}/productos">{{categoria["nombre"]}}</a>
-                </li>
-            {% endfor %}
-        </ul>
+    <ul>
+        {%for categoria in categorias_hijas %}
+        <li>
+            <a href="/api/v2/categorias/{{categoria[" id"]}}/productos">{{categoria["nombre"]}}</a>
+        </li>
+        {% endfor %}
+    </ul>
     {% endif %}
 
     {% if total_productos >0 %}
-        <ul>
+        <div class="container_productos">
             {%for producto in productos %}
-                <li>
-                    {{producto["nombre"]}}
-                    <img src="{{producto['imagen_url']}}" alt="{{producto["nombre"]}}">
-                </li>
-            {% endfor %}
-        </ul>
-        <pre>{{productos}}</pre>
+                <div class="card">
+                    <img src="{{producto['imagen_url']}}" alt="{{producto[" nombre"]}}">
+                    <span class="precio">$ {{producto["precio"]}}</span>
+                    <span class="nombre">{{producto["nombre"]}}</span>
+                    <button>Comprar</button>
+                </div>
+            {% endfor %}        
+        </div>
     {% endif %}
 </body>
+
 </html>
