@@ -1,0 +1,9 @@
+<h1>Categorias</h1>
+<ul class="categorias">
+    {% for categoria in categorias %}
+        <li>
+            <button hx-get="/api/v2/categorias/{{ categoria["id"]}}/productos" hx-swap="innerHTML"
+                hx-target="#reemplazar">{{ categoria["nombre"] }}</button>
+        </li>
+    {% endfor %}
+</ul>

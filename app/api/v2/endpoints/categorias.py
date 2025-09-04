@@ -38,7 +38,7 @@ async def listar_categorias_raiz_activas(db: Annotated[Session, Depends(get_sess
     Obtener solo categorías raíz activas
     """
     categorias = categoria_crud.get_root_active(db)
-    return templates.TemplateResponse(request=request, name="raiz_activas.html", context = {"categorias": categorias})
+    return templates.TemplateResponse(request=request, name="_categorias.html", context = {"categorias": categorias})
 
 @router.get("/activas", response_model=List[CategoriaRead])
 def listar_categorias_activas(db: Session = Depends(get_session)):

@@ -3,14 +3,20 @@ FastAPI Market System
 Sistema de gestión para market pequeño
 """
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from app.api.v1.endpoints import categorias
 from app.api.v2.endpoints import categorias as categorias_v2
 
+from typing import Annotated
+from app.crud import categoria as categoria_crud
 
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
+from sqlmodel import Session
+from app.core.database import get_session
 
 # Crear la aplicación FastAPI
 app = FastAPI()
@@ -23,8 +29,13 @@ app.include_router(categorias.router, prefix="/api/v1/categorias", tags=["catego
 app.include_router(categorias_v2.router, prefix="/api/v2/categorias", tags=["categorias_v2"])
 
 @app.get("/")
-def read_root():
-    return {"message": "Welcome to the FastAPI Market System"}
+def read_root(db: Annotated[Session, Depends(get_session)], request: Request):
+    """
+    Obtener solo categorías raíz activas
+    """
+    categorias = categoria_crud.get_root_active(db)
+    return templates.TemplateResponse(request=request, name="index.html", context = {"categorias": categorias})
+
 
 @app.get("/test", response_class=HTMLResponse)
 async def test(request: Request):
