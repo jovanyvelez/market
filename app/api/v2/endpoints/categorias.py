@@ -200,6 +200,6 @@ def obtener_productos_descendientes(
     # Convertir a objetos del schema
     categorias_hijas = [CategoriaHijaSchema(**categoria) for categoria in categorias_hijas_data]
 
-    return templates.TemplateResponse(name="productos_descendientes.html", request=request, context={"categoria_padre_id": categoria_id, "productos": productos, "total_productos": len(productos), "categorias_hijas": categorias_hijas})
+    return templates.TemplateResponse(name="_productos.html", request=request, context={"categoria_padre_id": categoria_id, "productos": productos, "total_productos": len(productos), "categorias_hijas": categorias_hijas})
 
   
