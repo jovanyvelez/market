@@ -92,4 +92,22 @@ li button {
     text-decoration: underline;
     cursor: pointer;
     color: blue;
+    line-height: 1.8rem;
+    font-size: large;
+}
+
+input[type="text"]{
+    margin: 20px auto;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 70%;
+}
+
+.buscar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
 }
