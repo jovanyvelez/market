@@ -1,17 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <script src="/static/htmx.js"></script>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
+
 <body>
-    <h1>Categorias Principales</h1>
-    <ul>
-        {% for categoria in categorias %}
+    <div id="todo-list">
+        {% include '_buscar.html' %}
+    </div>
+    <div id="reemplazar">
+        <h1>Categorias Principales</h1>
+        <ul>
+            {% for categoria in categorias %}
             <li>
-                <a href="/api/v2/categorias/{{categoria["id"]}}/productos">{{categoria["nombre"]}}</a>
+                <button hx-get="/api/v2/categorias/{{ categoria["id"]}}/productos" hx-swap="innerHTML" hx-target="#reemplazar">{{ categoria["nombre"] }}</button>
             </li>
-        {% endfor %}
-    </ul>
+            {% endfor %}
+        </ul>
+    </div>
 </html>

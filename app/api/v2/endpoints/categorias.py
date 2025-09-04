@@ -8,7 +8,6 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 from sqlmodel import Session
 
-import app
 from app.core.database import get_session
 from app.crud import categoria as categoria_crud
 from app.models import CategoriaCreate, CategoriaRead, CategoriaUpdate

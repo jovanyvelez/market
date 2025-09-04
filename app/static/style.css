@@ -1,0 +1,95 @@
+.container_productos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 32px 8px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.card {
+    background: #fff;
+    border-radius: 10px;
+    min-width: 160px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border: solid 1px #ccc;
+    /* elevación */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+    transition: box-shadow 180ms ease, transform 180ms ease;
+    will-change: box-shadow, transform;
+    /* Mejor soporte táctil */
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+/* Aplicar hover sólo en dispositivos que soportan hover (no en touch) */
+@media (hover: hover) and (pointer: fine) {
+    .card:hover {
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+        transform: translateY(-6px);
+    }
+}
+
+.card:hover {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+    transform: translateY(-6px);
+}
+
+/* Retroalimentación táctil inmediata */
+.card:active {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+img {
+    width: 80%;
+    margin: 5px auto;
+    height: auto;
+    border-radius: 10px;
+}
+
+.card span {
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.precio {
+    text-align: start;
+    color: red;
+    margin-left: 15px;
+}
+
+.nombre {
+    text-align: center;
+}
+
+.card button {
+    margin: 0 auto;
+    padding: 10px 12px;
+    /* aumentar area táctil */
+    align-self: end;
+    border: none;
+    background-color: red;
+    margin-bottom: 5px;
+    color: white;
+    border-radius: 8px;
+    width: 90%;
+    /* más fácil de tocar */
+    font-size: 1rem;
+    touch-action: manipulation;
+}
+
+@media (width > 400px) {
+    .container_productos {
+        gap: 32px;
+    }
+}
+
+li button {
+    border: none;
+    background: none;
+    text-decoration: underline;
+    cursor: pointer;
+    color: blue;
+}

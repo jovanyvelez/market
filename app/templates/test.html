@@ -1,0 +1,22 @@
+ {%if categorias_hijas%}
+    <ul>
+        {%for categoria in categorias_hijas %}
+        <li>
+            <a href="/api/v2/categorias/{{categoria[" id"]}}/productos">{{categoria["nombre"]}}</a>
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if total_productos >0 %}
+        <div class="container_productos">
+            {%for producto in productos %}
+                <div class="card">
+                    <img src="{{producto['imagen_url']}}" alt="{{producto[" nombre"]}}">
+                    <span class="precio">$ {{producto["precio"]}}</span>
+                    <span class="nombre">{{producto["nombre"]}}</span>
+                    <button>Comprar</button>
+                </div>
+            {% endfor %}        
+        </div>
+    {% endif %}
