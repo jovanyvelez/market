@@ -1,21 +1,46 @@
-{% if total_productos >0 %}
+{% if total_productos > 0 %}
 <div class="container_productos">
-    {%for producto in productos %}
+    {% for producto in productos %}
     <div class="card">
-        <img src="{{producto['imagen_url']}}" alt="{{producto[" nombre"]}}">
+        <img src="{{producto['imagen_url']}}" alt="{{producto['nombre']}}">
         <span class="precio">$ {{producto["precio"]}}</span>
         <span class="nombre">{{producto["nombre"]}}</span>
-        <button>Comprar</button>
+        <div class="quantity-control">
+            <button 
+                id="addButton_{{producto['id']}}" 
+                class="add-button" 
+                data-product-id="{{producto['id']}}"
+                data-product-name="{{producto['nombre']}}"
+                data-product-price="{{producto['precio']}}">
+                Comprar
+            </button>
+            
+            <div id="quantitySelector_{{producto['id']}}" class="quantity-selector hidden">
+                <button 
+                    id="decreaseBtn_{{producto['id']}}" 
+                    class="quantity-btn decrease-btn" 
+                    data-product-id="{{producto['id']}}">
+                    -
+                </button>
+                <span id="quantityDisplay_{{producto['id']}}" class="quantity-display">1</span>
+                <button 
+                    id="increaseBtn_{{producto['id']}}" 
+                    class="quantity-btn increase-btn" 
+                    data-product-id="{{producto['id']}}">
+                    +
+                </button>
+            </div>
+        </div>
     </div>
     {% endfor %}
 </div>
 {% endif %}
 
-{%if categorias_hijas%}
+{% if categorias_hijas %}
 <ul>
-    {%for categoria in categorias_hijas %}
+    {% for categoria in categorias_hijas %}
     <li>
-        <a href="/api/v2/categorias/{{categoria[" id"]}}/productos">{{categoria["nombre"]}}</a>
+        <a href="/api/v2/categorias/{{categoria['id']}}/productos">{{categoria["nombre"]}}</a>
     </li>
     {% endfor %}
 </ul>

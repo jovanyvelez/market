@@ -23,6 +23,47 @@
     touch-action: manipulation;
 }
 
+.quantity-control,
+.quantity-selector {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 10px 0;
+    gap: 10px;
+}
+
+.quantity-control {
+    flex-direction: column;
+}
+
+.quantity-selector {
+    flex-direction: row;
+    gap: 10px;
+}
+
+.quantity-btn {
+    width: 30px !important;
+    height: 30px;
+    border-radius: 50% !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin: 0 !important;
+}
+
+.quantity-display {
+    min-width: 30px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.hidden {
+    display: none;
+}
+
 /* Aplicar hover sólo en dispositivos que soportan hover (no en touch) */
 @media (hover: hover) and (pointer: fine) {
     .card:hover {
@@ -96,7 +137,7 @@ li button {
     font-size: large;
 }
 
-input[type="text"]{
+input[type="text"] {
     margin: 20px auto;
     padding: 10px;
     font-size: 1rem;
