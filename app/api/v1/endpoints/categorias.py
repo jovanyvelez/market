@@ -10,6 +10,7 @@ from app.core.database import get_session
 from app.crud import categoria as categoria_crud
 from app.models import CategoriaCreate, CategoriaRead, CategoriaUpdate
 from app.schemas.categoria_schemas import ProductosDescendientesResponse, CategoriaHijaSchema
+from app.models import Producto
 
 router = APIRouter()
 
@@ -199,3 +200,10 @@ def obtener_productos_descendientes(
         total_productos=len(productos),
         categorias_hijas=categorias_hijas
     )
+
+
+
+
+    #statement = text(f"SELECT * FROM producto WHERE nombre ILIKE '%{palabra}%'")
+    #result = db.execute(statement).all()
+

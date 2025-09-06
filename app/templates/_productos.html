@@ -1,3 +1,14 @@
+{% if termino_busqueda %}
+    {% if total_productos > 0 %}
+        <h3>Resultados para "{{termino_busqueda}}" ({{total_productos}} productos encontrados)</h3>
+    {% else %}
+        <div class="no-results">
+            <h3>No se encontraron productos para "{{termino_busqueda}}"</h3>
+            <p>Intenta con otros términos de búsqueda</p>
+        </div>
+    {% endif %}
+{% endif %}
+
 {% if total_productos > 0 %}
 <div class="container_productos">
     {% for producto in productos %}

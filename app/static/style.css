@@ -360,3 +360,50 @@ input[type="text"]:not(.search-wrapper input) {
 .categorias li button {
     color: red;
 }
+
+/* Estilos para resultados de búsqueda */
+.no-results {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+}
+
+.no-results h3 {
+    color: #dc3545;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+}
+
+.no-results p {
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* Estilos para títulos de resultados */
+h3 {
+    color: #333;
+    font-size: 1.1rem;
+    margin: 20px 0 15px 0;
+    text-align: center;
+    font-weight: 600;
+}
+
+/* Responsive para mensajes */
+@media (max-width: 480px) {
+    .no-results {
+        padding: 30px 15px;
+    }
+    
+    .no-results h3 {
+        font-size: 1.1rem;
+    }
+    
+    .no-results p {
+        font-size: 0.8rem;
+    }
+    
+    h3 {
+        font-size: 1rem;
+        margin: 15px 0 10px 0;
+    }
+}

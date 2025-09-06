@@ -5,9 +5,9 @@
         </button>
         
         <div class="search-wrapper">
-            <input type="text" name="buscar" autofocus placeholder="Buscar productos..." id="buscar-input"
-                autocomplete="false" hx-get="/test" hx-swap="innerHTML" hx-target="#reemplazar"
-                hx-trigger="keyup changed delay:500ms">
+            <input type="text" name="q" autofocus placeholder="Buscar productos..." id="buscar-input"
+                autocomplete="off" hx-get="/api/v2/productos/buscar" hx-swap="innerHTML" hx-target="#reemplazar"
+                hx-trigger="keyup changed delay:500ms" hx-include="this">
         </div>
         
         <div id="cart-icon" class="cart-icon">

@@ -2,9 +2,11 @@
 CRUD operations para Productos
 """
 
-from typing import List, Optional
+from typing import List, Optional, Sequence
 from decimal import Decimal
-from sqlmodel import Session, select
+from sqlmodel import Session, select, and_, or_, column, func, text
+
+
 
 from app.crud.base import CRUDBase
 from app.models import Producto, ProductoCreate, ProductoUpdate
@@ -23,22 +25,25 @@ class CRUDProducto(CRUDBase[Producto, ProductoCreate, ProductoUpdate]):
         """
         Buscar productos por nombre (búsqueda parcial)
         """
-        statement = select(Producto).where(Producto.nombre.ilike(f"%{nombre}%"))
-        return db.exec(statement).all()
+        statement = select(Producto).where(func.lower(Producto.nombre).like(f"%{nombre.lower()}%"))
+        result = db.exec(statement).all()
+        return list(result)
 
     def get_by_categoria(self, db: Session, *, categoria_id: int) -> List[Producto]:
         """
         Obtener productos por categoría
         """
         statement = select(Producto).where(Producto.categoria_id == categoria_id)
-        return db.exec(statement).all()
+        result = db.exec(statement).all()
+        return list(result)
 
     def get_activos(self, db: Session) -> List[Producto]:
         """
         Obtener solo productos activos
         """
         statement = select(Producto).where(Producto.activo == True)
-        return db.exec(statement).all()
+        result = db.exec(statement).all()
+        return list(result)
 
     def get_stock_bajo(self, db: Session) -> List[Producto]:
         """
@@ -47,14 +52,16 @@ class CRUDProducto(CRUDBase[Producto, ProductoCreate, ProductoUpdate]):
         statement = select(Producto).where(
             Producto.stock_actual <= Producto.stock_minimo
         ).where(Producto.activo == True)
-        return db.exec(statement).all()
+        result = db.exec(statement).all()
+        return list(result)
 
     def get_agotados(self, db: Session) -> List[Producto]:
         """
         Obtener productos agotados (stock = 0)
         """
         statement = select(Producto).where(Producto.stock_actual == 0)
-        return db.exec(statement).all()
+        result = db.exec(statement).all()
+        return list(result)
 
     def actualizar_stock(
         self, 
@@ -124,16 +131,18 @@ class CRUDProducto(CRUDBase[Producto, ProductoCreate, ProductoUpdate]):
         termino: str,
         skip: int = 0,
         limit: int = 50
-    ) -> List[Producto]:
+    ):
         """
         Búsqueda global por nombre, código de barras o descripción
+        Mejora: búsqueda más flexible con múltiples términos
         """
-        statement = select(Producto).where(
-            (Producto.nombre.ilike(f"%{termino}%")) |
-            (Producto.codigo_barras.ilike(f"%{termino}%")) |
-            (Producto.descripcion.ilike(f"%{termino}%"))
-        ).where(Producto.activo == True).offset(skip).limit(limit)
-        return db.exec(statement).all()
+        # Limpiar y dividir el término en palabras
+
+        palabra = termino.strip().lower()
+        statement = text(f"SELECT * FROM producto WHERE nombre ILIKE :nombre")
+        result = db.execute(statement, {"nombre": f"%{palabra}%"}).all()
+        return list({"id": product.id, "nombre": product.nombre, "precio": product.precio_venta, "imagen_url": product.imagen_url} for product in result)
+
 
     def get_mas_vendidos(self, db: Session, *, limit: int = 10) -> List[Producto]:
         """
@@ -142,7 +151,8 @@ class CRUDProducto(CRUDBase[Producto, ProductoCreate, ProductoUpdate]):
         # Esta consulta requeriría JOIN con DetalleVenta
         # Por ahora retornamos productos activos
         statement = select(Producto).where(Producto.activo == True).limit(limit)
-        return db.exec(statement).all()
+        result = db.exec(statement).all()
+        return list(result)
 
     def verificar_disponibilidad(
         self, 
