@@ -437,17 +437,43 @@ h3 {
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
+    height: calc(100vh - 120px); /* Altura total menos navbar y padding */
+    display: flex;
+    flex-direction: column;
 }
 
 .carrito-container h2 {
     color: #dc3545;
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     font-size: 24px;
+    flex-shrink: 0; /* No se encoge */
 }
 
 .cart-items {
-    margin-bottom: 30px;
+    flex: 1; /* Toma todo el espacio disponible */
+    overflow-y: auto; /* Scroll vertical */
+    padding-right: 10px; /* Espacio para el scrollbar */
+    margin-bottom: 20px;
+}
+
+/* Estilos para el scrollbar */
+.cart-items::-webkit-scrollbar {
+    width: 8px;
+}
+
+.cart-items::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.cart-items::-webkit-scrollbar-thumb {
+    background: #dc3545;
+    border-radius: 4px;
+}
+
+.cart-items::-webkit-scrollbar-thumb:hover {
+    background: #c82333;
 }
 
 .cart-item {
@@ -560,10 +586,14 @@ h3 {
 
 .cart-total-section {
     border-top: 2px solid #dc3545;
-    padding-top: 20px;
+    padding: 20px 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    background-color: white;
+    flex-shrink: 0; /* No se encoge */
+    margin-top: auto; /* Se pega al fondo */
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1); /* Sombra hacia arriba */
 }
 
 .cart-total {
@@ -705,4 +735,243 @@ h3 {
         padding: 10px 15px;
         font-size: 16px;
     }
+}
+
+/* ===================================================================== */
+/* ESTILOS PARA EL DETALLE DEL PRODUCTO */
+/* ===================================================================== */
+
+.producto-detalle-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.producto-detalle-content {
+    background-color: white;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    animation: fadeInScale 0.3s ease-out;
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.detalle-header {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    padding: 15px 20px 0;
+    display: flex;
+    justify-content: flex-end;
+    z-index: 10;
+}
+
+.btn-cerrar {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #666;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.btn-cerrar:hover {
+    background-color: #f5f5f5;
+    color: #dc3545;
+}
+
+.producto-imagen-detalle {
+    padding: 0 20px;
+    text-align: center;
+}
+
+.producto-imagen-detalle img {
+    max-width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.producto-imagen-detalle .imagen-placeholder {
+    width: 100%;
+    height: 200px;
+    background-color: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    color: #6c757d;
+}
+
+.producto-info-detalle {
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.producto-nombre-detalle {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+    line-height: 1.3;
+}
+
+.producto-categoria {
+    margin-bottom: 15px;
+}
+
+.categoria-badge {
+    background-color: #dc3545;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.producto-precio-detalle {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.precio-label {
+    font-weight: 500;
+    color: #666;
+    margin-right: 10px;
+}
+
+.precio-valor {
+    font-size: 28px;
+    font-weight: bold;
+    color: #dc3545;
+}
+
+.producto-stock {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.stock-label {
+    font-weight: 500;
+    color: #666;
+    margin-right: 10px;
+}
+
+.stock-valor {
+    color: #28a745;
+    font-weight: 500;
+}
+
+.producto-descripcion {
+    margin-top: 20px;
+}
+
+.producto-descripcion h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #dc3545;
+    padding-bottom: 5px;
+}
+
+.producto-descripcion p {
+    color: #666;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.detalle-controles {
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+.detalle-controles .quantity-control {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.detalle-controles .add-button {
+    width: 100%;
+    max-width: 200px;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.detalle-controles .quantity-selector {
+    width: 100%;
+    max-width: 200px;
+    justify-content: center;
+}
+
+/* Responsive para detalle del producto */
+@media (max-width: 768px) {
+    .producto-detalle-container {
+        padding: 10px;
+    }
+    
+    .producto-detalle-content {
+        max-width: 100%;
+        margin: 0;
+        border-radius: 8px;
+    }
+    
+    .producto-nombre-detalle {
+        font-size: 20px;
+    }
+    
+    .precio-valor {
+        font-size: 24px;
+    }
+    
+    .producto-imagen-detalle img,
+    .producto-imagen-detalle .imagen-placeholder {
+        height: 150px;
+    }
+}
+
+/* Evitar scroll del body cuando el modal está abierto */
+body.modal-open {
+    overflow: hidden;
 }

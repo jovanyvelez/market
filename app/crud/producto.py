@@ -37,13 +37,46 @@ class CRUDProducto(CRUDBase[Producto, ProductoCreate, ProductoUpdate]):
         result = db.exec(statement).all()
         return list(result)
 
-    def get_activos(self, db: Session) -> List[Producto]:
+    def get_activos(self, db: Session) -> List[dict]:
         """
-        Obtener solo productos activos
+        Obtener solo productos activos con formato compatible con plantillas
         """
-        statement = select(Producto).where(Producto.activo == True)
-        result = db.exec(statement).all()
-        return list(result)
+        try:
+            query = text("""
+            SELECT 
+                p.id,
+                p.nombre,
+                p.descripcion,
+                p.precio_venta as precio,
+                p.stock_actual as stock,
+                p.imagen_url,
+                p.activo,
+                c.nombre as categoria_nombre
+            FROM producto p
+            LEFT JOIN categoria c ON p.categoria_id = c.id
+            WHERE p.activo = true
+            ORDER BY p.nombre
+            """)
+            
+            result = db.execute(query).fetchall()
+            
+            return [
+                {
+                    "id": row.id,
+                    "nombre": row.nombre,
+                    "descripcion": row.descripcion,
+                    "precio": float(row.precio) if row.precio else 0.0,
+                    "stock": row.stock,
+                    "imagen_url": row.imagen_url,
+                    "activo": row.activo,
+                    "categoria_nombre": row.categoria_nombre
+                }
+                for row in result
+            ]
+            
+        except Exception as e:
+            print(f"Error en get_activos: {e}")
+            return []
 
     def get_stock_bajo(self, db: Session) -> List[Producto]:
         """
@@ -134,14 +167,58 @@ class CRUDProducto(CRUDBase[Producto, ProductoCreate, ProductoUpdate]):
     ):
         """
         Búsqueda global por nombre, código de barras o descripción
-        Mejora: búsqueda más flexible con múltiples términos
+        Devuelve productos con formato compatible con las plantillas
         """
-        # Limpiar y dividir el término en palabras
-
-        palabra = termino.strip().lower()
-        statement = text(f"SELECT * FROM producto WHERE nombre ILIKE :nombre")
-        result = db.execute(statement, {"nombre": f"%{palabra}%"}).all()
-        return list({"id": product.id, "nombre": product.nombre, "precio": product.precio_venta, "imagen_url": product.imagen_url} for product in result)
+        try:
+            # Limpiar el término de búsqueda
+            palabra = termino.strip().lower()
+            
+            # Consulta que busca en nombre, código de barras y descripción
+            query = text("""
+            SELECT 
+                p.id,
+                p.nombre,
+                p.descripcion,
+                p.precio_venta as precio,
+                p.stock_actual as stock,
+                p.imagen_url,
+                p.activo,
+                c.nombre as categoria_nombre
+            FROM producto p
+            LEFT JOIN categoria c ON p.categoria_id = c.id
+            WHERE p.activo = true
+            AND (
+                LOWER(p.nombre) LIKE :termino
+                OR LOWER(p.codigo_barras) LIKE :termino
+                OR LOWER(p.descripcion) LIKE :termino
+            )
+            ORDER BY p.nombre
+            LIMIT :limit OFFSET :skip
+            """)
+            
+            result = db.execute(query, {
+                "termino": f"%{palabra}%",
+                "limit": limit,
+                "skip": skip
+            }).fetchall()
+            
+            return [
+                {
+                    "id": row.id,
+                    "nombre": row.nombre,
+                    "descripcion": row.descripcion,
+                    "precio": float(row.precio) if row.precio else 0.0,
+                    "stock": row.stock,
+                    "imagen_url": row.imagen_url,
+                    "activo": row.activo,
+                    "categoria_nombre": row.categoria_nombre
+                }
+                for row in result
+            ]
+            
+        except Exception as e:
+            print(f"Error en buscar_por_termino: {e}")
+            return []
 
 
     def get_mas_vendidos(self, db: Session, *, limit: int = 10) -> List[Producto]:

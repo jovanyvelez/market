@@ -163,6 +163,7 @@ class CRUDCategoria(CRUDBase[Categoria, CategoriaCreate, CategoriaUpdate]):
             SELECT 
                 p.id,
                 p.nombre,
+                p.descripcion,
                 p.precio_venta as precio,
                 p.stock_actual as stock,
                 p.activo,
@@ -180,6 +181,7 @@ class CRUDCategoria(CRUDBase[Categoria, CategoriaCreate, CategoriaUpdate]):
                 {
                     "id": row.id,
                     "nombre": row.nombre,
+                    "descripcion": row.descripcion,
                     "precio": float(row.precio) if row.precio else 0.0,
                     "stock": row.stock,
                     "activo": row.activo,

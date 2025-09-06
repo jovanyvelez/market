@@ -1,0 +1,118 @@
+<div class="producto-detalle-container">
+    <div class="producto-detalle-content">
+        <!-- Botón de cerrar -->
+        <div class="detalle-header">
+            <button class="btn-cerrar" onclick="cerrarDetalle()">
+                <span>&times;</span>
+            </button>
+        </div>
+        
+        <!-- Imagen del producto -->
+        <div class="producto-imagen-detalle">
+            {% if producto.imagen_url and producto.imagen_url.strip() != '' %}
+                <img src="{{producto.imagen_url}}" alt="{{producto.nombre}}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="imagen-placeholder" style="display: none;">
+                    <span>📦</span>
+                </div>
+            {% else %}
+                <div class="imagen-placeholder">
+                    <span>📦</span>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Información del producto -->
+        <div class="producto-info-detalle">
+            <h2 class="producto-nombre-detalle">{{producto.nombre}}</h2>
+            
+            <div class="producto-categoria">
+                <span class="categoria-badge">{{producto.categoria_nombre}}</span>
+            </div>
+            
+            <div class="producto-precio-detalle">
+                <span class="precio-label">Precio:</span>
+                <span class="precio-valor">$ {{producto.precio}}</span>
+            </div>
+            
+            <div class="producto-stock">
+                <span class="stock-label">Disponible:</span>
+                <span class="stock-valor">{{producto.stock}} unidades</span>
+            </div>
+            
+            <div class="producto-descripcion">
+                <h3>Características:</h3>
+                <p>{{producto.descripcion}}</p>
+            </div>
+        </div>
+        
+        <!-- Controles de compra -->
+        <div class="detalle-controles">
+            <div class="quantity-control">
+                <button 
+                    id="addButton_detalle_{{producto.id}}" 
+                    class="add-button" 
+                    data-product-id="{{producto.id}}"
+                    data-product-name="{{producto.nombre}}"
+                    data-product-price="{{producto.precio}}"
+                    data-product-image-url="{{producto.imagen_url}}">
+                    Comprar
+                </button>
+                
+                <div id="quantitySelector_detalle_{{producto.id}}" class="quantity-selector hidden">
+                    <button 
+                        id="decreaseBtn_detalle_{{producto.id}}" 
+                        class="quantity-btn decrease-btn" 
+                        data-product-id="{{producto.id}}">
+                        -
+                    </button>
+                    <span id="quantityDisplay_detalle_{{producto.id}}" class="quantity-display">1</span>
+                    <button 
+                        id="increaseBtn_detalle_{{producto.id}}" 
+                        class="quantity-btn increase-btn" 
+                        data-product-id="{{producto.id}}">
+                        +
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function cerrarDetalle() {
+    // Ocultar el modal del detalle del producto
+    const detalleContainer = document.querySelector('.producto-detalle-container');
+    if (detalleContainer) {
+        // Animar la salida
+        detalleContainer.style.opacity = '0';
+        detalleContainer.querySelector('.producto-detalle-content').style.transform = 'scale(0.9)';
+        
+        setTimeout(() => {
+            detalleContainer.remove();
+            document.body.classList.remove('modal-open');
+        }, 200);
+    }
+}
+
+// Cerrar modal al hacer clic fuera del contenido
+document.addEventListener('click', function(event) {
+    if (event.target.classList.contains('producto-detalle-container')) {
+        cerrarDetalle();
+    }
+});
+
+// Cerrar modal con tecla Escape
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        cerrarDetalle();
+    }
+});
+
+// Actualizar los controles del carrito en el detalle cuando se carga
+document.addEventListener('DOMContentLoaded', function() {
+    // Si el carrito ya está configurado, actualizar los controles
+    if (typeof updateCartDisplay === 'function') {
+        updateCartDisplay();
+    }
+});
+</script>

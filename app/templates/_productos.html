@@ -12,11 +12,16 @@
 {% if total_productos > 0 %}
 <div class="container_productos">
     {% for producto in productos %}
-    <div class="card">
+    <div class="card" 
+         hx-get="/api/v2/categorias/producto/{{producto['id']}}/detalle" 
+         hx-target="body" 
+         hx-swap="beforeend"
+         onclick="event.stopPropagation(); if (!event.target.closest('.quantity-control')) { htmx.trigger(this, 'click'); document.body.classList.add('modal-open'); }"
+         style="cursor: pointer;">
         <img src="{{producto['imagen_url']}}" alt="{{producto['nombre']}}">
         <span class="precio">$ {{producto["precio"]}}</span>
         <span class="nombre">{{producto["nombre"]}}</span>
-        <div class="quantity-control">
+        <div class="quantity-control" onclick="event.stopPropagation();">
             <button 
                 id="addButton_{{producto['id']}}" 
                 class="add-button" 

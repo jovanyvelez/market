@@ -21,13 +21,17 @@ function updateProductsInterface() {
     }
     
     cart.forEach(item => {
-        const productExists = document.getElementById(`addButton_${item.id}`);
+        // Buscar tanto en cards normales como en modal de detalle
+        const productExists = document.getElementById(`addButton_${item.id}`) || 
+                            document.getElementById(`addButton_detalle_${item.id}`);
         console.log(`Checking product ${item.id}:`, productExists ? 'Found' : 'Not found on page');
         
         if (productExists) {
             console.log(`Syncing product ${item.id} with quantity ${item.quantity}`);
             // Si el producto está en el carrito, mostrar el selector de cantidad
             showQuantitySelector(item.id);
+            // También sincronizar el modal de detalle si existe
+            showQuantitySelector(item.id, 'detalle_');
             // Actualizar la cantidad mostrada con la cantidad del carrito
             updateQuantityDisplay(item.id);
         }
@@ -40,12 +44,17 @@ function updateProductsInterface() {
 function syncProductWithCart(productId) {
     const cartItem = cart.find(item => item.id === productId);
     if (cartItem) {
-        // Si está en el carrito, mostrar selector y sincronizar cantidad
+        // Si está en el carrito, mostrar selector y sincronizar cantidad en cards normales
         showQuantitySelector(productId);
         updateQuantityDisplay(productId);
+        
+        // También sincronizar en modal de detalle si existe
+        showQuantitySelector(productId, 'detalle_');
+        updateQuantityDisplay(productId, 'detalle_');
     } else {
-        // Si no está en el carrito, mostrar botón comprar
+        // Si no está en el carrito, mostrar botón comprar en ambos lugares
         hideQuantitySelector(productId);
+        hideQuantitySelector(productId, 'detalle_');
     }
 }
 
@@ -108,38 +117,38 @@ function addToCart(id, name, price, imageUrl = null) {
 }
 
 // Mostrar el selector de cantidad para un producto específico
-function showQuantitySelector(productId) {
-    const addButton = document.getElementById(`addButton_${productId}`);
-    const quantitySelector = document.getElementById(`quantitySelector_${productId}`);
+function showQuantitySelector(productId, prefix = '') {
+    const addButton = document.getElementById(`addButton_${prefix}${productId}`);
+    const quantitySelector = document.getElementById(`quantitySelector_${prefix}${productId}`);
     
-    console.log(`Showing quantity selector for product ${productId}`);
+    console.log(`Showing quantity selector for product ${productId} with prefix '${prefix}'`);
     console.log('AddButton:', addButton ? 'Found' : 'Not found');
     console.log('QuantitySelector:', quantitySelector ? 'Found' : 'Not found');
     
     if (addButton && quantitySelector) {
         addButton.classList.add('hidden');
         quantitySelector.classList.remove('hidden');
-        console.log(`Successfully showed quantity selector for product ${productId}`);
+        console.log(`Successfully showed quantity selector for product ${productId} with prefix '${prefix}'`);
     } else {
-        console.log(`Failed to show quantity selector for product ${productId}`);
+        console.log(`Failed to show quantity selector for product ${productId} with prefix '${prefix}'`);
     }
 }
 
 // Ocultar el selector de cantidad para un producto específico
-function hideQuantitySelector(productId) {
-    const addButton = document.getElementById(`addButton_${productId}`);
-    const quantitySelector = document.getElementById(`quantitySelector_${productId}`);
+function hideQuantitySelector(productId, prefix = '') {
+    const addButton = document.getElementById(`addButton_${prefix}${productId}`);
+    const quantitySelector = document.getElementById(`quantitySelector_${prefix}${productId}`);
     
-    console.log(`Hiding quantity selector for product ${productId}`);
+    console.log(`Hiding quantity selector for product ${productId} with prefix '${prefix}'`);
     
     if (addButton && quantitySelector) {
         addButton.classList.remove('hidden');
         quantitySelector.classList.add('hidden');
         // Resetear el display de cantidad a 1
-        updateQuantityDisplay(productId);
-        console.log(`Successfully hid quantity selector for product ${productId}`);
+        updateQuantityDisplay(productId, prefix);
+        console.log(`Successfully hid quantity selector for product ${productId} with prefix '${prefix}'`);
     } else {
-        console.log(`Failed to hide quantity selector for product ${productId}`);
+        console.log(`Failed to hide quantity selector for product ${productId} with prefix '${prefix}'`);
     }
 }
 
@@ -150,7 +159,9 @@ function increaseQuantity(productId) {
         cartItem.quantity++;
         saveCart();
         updateCartCount();
+        // Actualizar ambas interfaces
         updateQuantityDisplay(productId);
+        updateQuantityDisplay(productId, 'detalle_');
     }
 }
 
@@ -162,18 +173,21 @@ function decreaseQuantity(productId) {
             cartItem.quantity--;
             saveCart();
             updateCartCount();
+            // Actualizar ambas interfaces
             updateQuantityDisplay(productId);
+            updateQuantityDisplay(productId, 'detalle_');
         } else {
             // Si la cantidad es 1, remover del carrito y ocultar el selector
             removeFromCart(productId);
             hideQuantitySelector(productId);
+            hideQuantitySelector(productId, 'detalle_');
         }
     }
 }
 
 // Actualizar la visualización de cantidad para un producto específico
-function updateQuantityDisplay(productId) {
-    const quantityDisplay = document.getElementById(`quantityDisplay_${productId}`);
+function updateQuantityDisplay(productId, prefix = '') {
+    const quantityDisplay = document.getElementById(`quantityDisplay_${prefix}${productId}`);
     const cartItem = cart.find(item => item.id === productId);
     if (quantityDisplay && cartItem) {
         quantityDisplay.textContent = cartItem.quantity;

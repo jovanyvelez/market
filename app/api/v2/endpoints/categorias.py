@@ -6,7 +6,7 @@ from typing import List, Annotated
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
-from sqlmodel import Session
+from sqlmodel import Session, text
 
 from app.core.database import get_session
 from app.crud import categoria as categoria_crud
@@ -247,6 +247,67 @@ def desactivar_categoria(categoria_id: int, db: Session = Depends(get_session)):
             detail="Categoría no encontrada"
         )
     return categoria
+
+
+@router.get("/producto/{producto_id}/detalle", response_class=HTMLResponse)
+async def mostrar_detalle_producto(
+    request: Request,
+    producto_id: int,
+    db: Annotated[Session, Depends(get_session)]
+):
+    """
+    Mostrar el detalle completo de un producto específico
+    """
+    try:
+        # Consulta para obtener el producto con toda su información
+        query = text("""
+        SELECT 
+            p.id,
+            p.nombre,
+            p.descripcion,
+            p.precio_venta as precio,
+            p.stock_actual as stock,
+            p.imagen_url,
+            p.activo,
+            c.nombre as categoria_nombre
+        FROM producto p
+        LEFT JOIN categoria c ON p.categoria_id = c.id
+        WHERE p.id = :producto_id AND p.activo = true
+        """)
+        
+        result = db.execute(query, {"producto_id": producto_id}).fetchone()
+        
+        if not result:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Producto no encontrado"
+            )
+        
+        producto = {
+            "id": result.id,
+            "nombre": result.nombre,
+            "descripcion": result.descripcion or "Sin descripción disponible",
+            "precio": float(result.precio) if result.precio else 0.0,
+            "stock": result.stock,
+            "imagen_url": result.imagen_url,
+            "activo": result.activo,
+            "categoria_nombre": result.categoria_nombre or "Sin categoría"
+        }
+        
+        return templates.TemplateResponse(
+            name="_detalle_producto.html", 
+            request=request, 
+            context={"producto": producto}
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error obteniendo detalle del producto: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error interno del servidor"
+        )
 
 
 @router.get("/{categoria_id}/productos", response_class=HTMLResponse)
