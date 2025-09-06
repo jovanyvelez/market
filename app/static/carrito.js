@@ -1,9 +1,6 @@
 // Estado del carrito
 let cart = [];
 
-// Objeto para mantener las cantidades de cada producto
-let quantities = {};
-
 // Cargar el carrito desde localStorage al iniciar
 function loadCart() {
     const savedCart = localStorage.getItem('shoppingCart');
@@ -32,7 +29,6 @@ function updateProductsInterface() {
             // Si el producto está en el carrito, mostrar el selector de cantidad
             showQuantitySelector(item.id);
             // Actualizar la cantidad mostrada con la cantidad del carrito
-            quantities[item.id] = item.quantity;
             updateQuantityDisplay(item.id);
         }
     });
@@ -46,7 +42,6 @@ function syncProductWithCart(productId) {
     if (cartItem) {
         // Si está en el carrito, mostrar selector y sincronizar cantidad
         showQuantitySelector(productId);
-        quantities[productId] = cartItem.quantity;
         updateQuantityDisplay(productId);
     } else {
         // Si no está en el carrito, mostrar botón comprar
@@ -58,7 +53,7 @@ function syncProductWithCart(productId) {
 function debugCartState() {
     console.log('=== CART DEBUG INFO ===');
     console.log('Cart items:', cart);
-    console.log('Quantities object:', quantities);
+    console.log('Cart length:', cart.length);
     console.log('Products found on page:');
     
     document.querySelectorAll('[id^="addButton_"]').forEach(button => {
@@ -79,28 +74,22 @@ function saveCart() {
 function updateCartCount() {
     const countElement = document.getElementById('cart-count');
     if (countElement) {
-        const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
-        countElement.textContent = totalItems;
+        countElement.textContent = cart.length;
     }
 }
 
 // Función mejorada para añadir al carrito
 function addToCart(id, name, price) {
-    // Inicializar cantidad si no existe
-    if (!quantities[id]) {
-        quantities[id] = 1;
-    }
-
     const existingItem = cart.find(item => item.id === id);
 
     if (existingItem) {
-        existingItem.quantity += quantities[id];
+        existingItem.quantity += 1;
     } else {
         cart.push({
             id,
             name,
             price,
-            quantity: quantities[id]
+            quantity: 1
         });
     }
 
@@ -111,11 +100,7 @@ function addToCart(id, name, price) {
     showQuantitySelector(id);
     
     // Sincronizar la cantidad mostrada con la del carrito
-    const cartItem = cart.find(item => item.id === id);
-    if (cartItem) {
-        quantities[id] = cartItem.quantity;
-        updateQuantityDisplay(id);
-    }
+    updateQuantityDisplay(id);
     
     // Mostrar notificación
     showNotification(`${name} añadido al carrito`);
@@ -149,8 +134,7 @@ function hideQuantitySelector(productId) {
     if (addButton && quantitySelector) {
         addButton.classList.remove('hidden');
         quantitySelector.classList.add('hidden');
-        // Resetear cantidad
-        quantities[productId] = 1;
+        // Resetear el display de cantidad a 1
         updateQuantityDisplay(productId);
         console.log(`Successfully hid quantity selector for product ${productId}`);
     } else {
@@ -160,50 +144,40 @@ function hideQuantitySelector(productId) {
 
 // Incrementar cantidad para un producto específico
 function increaseQuantity(productId) {
-    if (!quantities[productId]) {
-        quantities[productId] = 1;
-    }
-    quantities[productId]++;
-    updateQuantityDisplay(productId);
-    
-    // Actualizar cantidad en el carrito
     const cartItem = cart.find(item => item.id === productId);
     if (cartItem) {
-        cartItem.quantity = quantities[productId];
+        cartItem.quantity++;
         saveCart();
         updateCartCount();
+        updateQuantityDisplay(productId);
     }
 }
 
 // Decrementar cantidad para un producto específico
 function decreaseQuantity(productId) {
-    if (!quantities[productId]) {
-        quantities[productId] = 1;
-    }
-    
-    if (quantities[productId] > 1) {
-        quantities[productId]--;
-        updateQuantityDisplay(productId);
-        
-        // Actualizar cantidad en el carrito
-        const cartItem = cart.find(item => item.id === productId);
-        if (cartItem) {
-            cartItem.quantity = quantities[productId];
+    const cartItem = cart.find(item => item.id === productId);
+    if (cartItem) {
+        if (cartItem.quantity > 1) {
+            cartItem.quantity--;
             saveCart();
             updateCartCount();
+            updateQuantityDisplay(productId);
+        } else {
+            // Si la cantidad es 1, remover del carrito y ocultar el selector
+            removeFromCart(productId);
+            hideQuantitySelector(productId);
         }
-    } else {
-        // Si la cantidad es 1, remover del carrito y ocultar el selector
-        removeFromCart(productId);
-        hideQuantitySelector(productId);
     }
 }
 
 // Actualizar la visualización de cantidad para un producto específico
 function updateQuantityDisplay(productId) {
     const quantityDisplay = document.getElementById(`quantityDisplay_${productId}`);
-    if (quantityDisplay && quantities[productId]) {
-        quantityDisplay.textContent = quantities[productId];
+    const cartItem = cart.find(item => item.id === productId);
+    if (quantityDisplay && cartItem) {
+        quantityDisplay.textContent = cartItem.quantity;
+    } else if (quantityDisplay) {
+        quantityDisplay.textContent = '1';
     }
 }
 
@@ -271,7 +245,6 @@ function checkout() {
 
     // Vaciar carrito después de la compra
     cart = [];
-    quantities = {};
     saveCart();
     updateCartDisplay();
     updateCartCount();
@@ -284,11 +257,9 @@ function checkout() {
         button.classList.remove('hidden');
     });
     
-    // Reinicializar cantidades
+    // Reinicializar displays de cantidad
     document.querySelectorAll('[id^="quantityDisplay_"]').forEach(display => {
-        const productId = parseInt(display.id.split('_')[1]);
-        quantities[productId] = 1;
-        updateQuantityDisplay(productId);
+        display.textContent = '1';
     });
 }
 
@@ -335,9 +306,11 @@ document.addEventListener('DOMContentLoaded', () => {
 function initializeProductQuantities() {
     document.querySelectorAll('[id^="quantityDisplay_"]').forEach(display => {
         const productId = parseInt(display.id.split('_')[1]);
-        if (!quantities[productId]) {
-            quantities[productId] = 1;
-            updateQuantityDisplay(productId);
+        const cartItem = cart.find(item => item.id === productId);
+        if (cartItem) {
+            display.textContent = cartItem.quantity;
+        } else {
+            display.textContent = '1';
         }
     });
 }

@@ -1,3 +1,209 @@
+
+/* Estilos del header */
+#header {
+    position: relative;
+    z-index: 1000;
+}
+
+/* Barra de navegación */
+.navbar {
+    background: #dc3545;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.15);
+    margin-bottom: 20px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-radius: 10px;
+}
+
+.navbar-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 15px;
+    max-width: 1200px;
+    margin: 0 auto;
+    gap: 10px;
+}
+
+.back-btn {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    color: #dc3545;
+    padding: 6px 12px;
+    border-radius: 15px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    min-width: 70px;
+}
+
+.back-btn:hover {
+    background: white;
+    transform: translateY(-1px);
+}
+
+.search-wrapper {
+    flex: 1;
+    max-width: none;
+    margin: 0 8px;
+}
+
+.search-wrapper input[type="text"] {
+    width: 100%;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 20px;
+    font-size: 14px;
+    background: white;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+    margin: 0;
+}
+
+.search-wrapper input[type="text"]:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.3), inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.search-wrapper input[type="text"]::placeholder {
+    color: #666;
+}
+
+.cart-icon {
+    position: relative;
+    font-size: 22px;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    color: white;
+    min-width: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 10px;
+}
+
+.cart-icon:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: scale(1.05);
+}
+
+#cart-count {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: white;
+    color: #dc3545;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: bold;
+    border: 1px solid #dc3545;
+}
+
+/* Optimización para pantallas pequeñas */
+@media (max-width: 768px) {
+    .navbar-content {
+        padding: 6px 10px;
+        gap: 6px;
+    }
+    
+    .back-btn {
+        padding: 5px 8px;
+        font-size: 11px;
+        min-width: 60px;
+    }
+    
+    .search-wrapper {
+        margin: 0 4px;
+    }
+    
+    .search-wrapper input[type="text"] {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+    
+    .cart-icon {
+        font-size: 20px;
+        padding: 4px;
+        min-width: 28px;
+    }
+    
+    #cart-count {
+        width: 16px;
+        height: 16px;
+        font-size: 9px;
+        top: -3px;
+        right: -3px;
+    }
+}
+
+@media (max-width: 480px) {
+    .navbar-content {
+        padding: 5px 8px;
+        gap: 4px;
+    }
+    
+    .back-btn {
+        font-size: 10px;
+        padding: 4px 6px;
+        min-width: 50px;
+        border-radius: 12px;
+    }
+    
+    .search-wrapper {
+        margin: 0 2px;
+    }
+    
+    .search-wrapper input[type="text"] {
+        padding: 5px 10px;
+        font-size: 12px;
+    }
+    
+    .cart-icon {
+        font-size: 18px;
+        min-width: 24px;
+    }
+    
+    #cart-count {
+        width: 14px;
+        height: 14px;
+        font-size: 8px;
+    }
+}
+
+/* Para pantallas muy pequeñas */
+@media (max-width: 360px) {
+    .navbar-content {
+        padding: 4px 6px;
+    }
+    
+    .back-btn {
+        font-size: 9px;
+        padding: 3px 5px;
+        min-width: 45px;
+    }
+    
+    .search-wrapper input[type="text"] {
+        padding: 4px 8px;
+        font-size: 11px;
+    }
+    
+    .cart-icon {
+        font-size: 16px;
+        min-width: 22px;
+    }
+}
+
+
 .container_productos {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -137,30 +343,14 @@ li button {
     font-size: large;
 }
 
-input[type="text"] {
+/* Estilos generales para inputs (excepto los de la navbar) */
+input[type="text"]:not(.search-wrapper input) {
     margin: 20px auto;
     padding: 10px;
     font-size: 1rem;
     border: 1px solid #ccc;
     border-radius: 5px;
     width: 100%;
-}
-
-.buscar {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    width: 70%;
-    margin: 0 auto;
-}
-
-.buscar .atras {
-    color: red;
-    cursor: pointer;
-    margin-right: 10px;
-    margin-bottom: 20px;
-    align-self: flex-end
 }
 
 .categorias {

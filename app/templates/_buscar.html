@@ -1,19 +1,18 @@
-<div class="buscar">
-    <input type="text" 
-    name="buscar" 
-    autofocus 
-    placeholder="Buscar productos..." 
-    id="buscar-input"  
-    autocomplete="false" hx-get="/test"
-    hx-swap="innerHTML"
-    hx-target="#reemplazar"
-    hx-trigger="keyup changed delay:500ms"
-    >
-    <span
-        class="atras"
-        hx-get="/api/v2/categorias/raiz_activas"
-        hx-swap="innerHTML"
-        hx-target="#reemplazar"
-        hx-trigger="click"
-    >Regresar</span>
-</div>
+<nav class="navbar">
+    <div class="navbar-content">
+        <button class="back-btn" hx-get="/api/v2/categorias/raiz_activas" hx-swap="innerHTML" hx-target="#reemplazar" hx-trigger="click">
+            ← Regresar
+        </button>
+        
+        <div class="search-wrapper">
+            <input type="text" name="buscar" autofocus placeholder="Buscar productos..." id="buscar-input"
+                autocomplete="false" hx-get="/test" hx-swap="innerHTML" hx-target="#reemplazar"
+                hx-trigger="keyup changed delay:500ms">
+        </div>
+        
+        <div id="cart-icon" class="cart-icon">
+            🛒
+            <span id="cart-count">0</span>
+        </div>
+    </div>
+</nav>
