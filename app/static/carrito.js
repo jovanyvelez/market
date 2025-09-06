@@ -79,7 +79,7 @@ function updateCartCount() {
 }
 
 // Función mejorada para añadir al carrito
-function addToCart(id, name, price) {
+function addToCart(id, name, price, imageUrl = null) {
     const existingItem = cart.find(item => item.id === id);
 
     if (existingItem) {
@@ -89,7 +89,8 @@ function addToCart(id, name, price) {
             id,
             name,
             price,
-            quantity: 1
+            quantity: 1,
+            imageUrl: imageUrl && imageUrl.trim() !== '' ? imageUrl : null
         });
     }
 
@@ -221,10 +222,25 @@ function updateCartDisplay() {
 
         itemsHTML += `
             <div class="cart-item">
-                <div>
-                    <strong>${item.name}</strong> - $${item.price.toFixed(2)} x ${item.quantity}
+                <div class="cart-item-image">
+                    ${item.imageUrl && item.imageUrl.trim() !== '' ? 
+                        `<img src="${item.imageUrl}" alt="${item.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                         <div class="default-image" style="display: none;">📦</div>` :
+                        `<div class="default-image">📦</div>`
+                    }
                 </div>
-                <button class="remove-btn" onclick="removeFromCart(${item.id})">Eliminar</button>
+                <div class="cart-item-info">
+                    <div class="cart-item-name">${item.name}</div>
+                    <div class="cart-item-details">$${item.price.toFixed(2)} c/u</div>
+                </div>
+                <div class="cart-item-controls">
+                    <div class="quantity-controls">
+                        <button class="quantity-btn decrease-btn" data-product-id="${item.id}">-</button>
+                        <span class="quantity-display" id="quantityDisplay_${item.id}">${item.quantity}</span>
+                        <button class="quantity-btn increase-btn" data-product-id="${item.id}">+</button>
+                    </div>
+                    <button class="remove-btn" onclick="removeFromCart(${item.id})">Eliminar</button>
+                </div>
             </div>
         `;
     });
@@ -276,19 +292,47 @@ function showNotification(message) {
     }
 }
 
-// Navegación entre páginas
-function showPage(pageId) {
-    // Ocultar todas las páginas
-    document.querySelectorAll('.page').forEach(page => {
-        page.classList.remove('active');
-    });
-
-    // Mostrar la página seleccionada
-    const targetPage = document.getElementById(pageId);
-    if (targetPage) {
-        targetPage.classList.add('active');
+// Función para enviar el carrito al backend
+function sendCartToBackend() {
+    if (!cart || cart.length === 0) {
+        // Si el carrito está vacío, usar GET
+        fetch('/api/v2/categorias/carrito')
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('reemplazar').innerHTML = html;
+        })
+        .catch(error => {
+            console.error('Error cargando carrito vacío:', error);
+        });
+        return;
     }
+    
+    // Enviar datos del carrito al backend via POST
+    fetch('/api/v2/categorias/carrito', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            items: cart
+        })
+    })
+    .then(response => response.text())
+    .then(html => {
+        document.getElementById('reemplazar').innerHTML = html;
+    })
+    .catch(error => {
+        console.error('Error enviando carrito:', error);
+        // Fallback a GET si hay error
+        fetch('/api/v2/categorias/carrito')
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('reemplazar').innerHTML = html;
+        });
+    });
 }
+
+
 
 // Inicializar
 document.addEventListener('DOMContentLoaded', () => {
@@ -323,7 +367,8 @@ function setupEventListeners() {
             const productId = parseInt(e.target.dataset.productId);
             const productName = e.target.dataset.productName;
             const productPrice = parseFloat(e.target.dataset.productPrice);
-            addToCart(productId, productName, productPrice);
+            const productImageUrl = e.target.dataset.productImageUrl || null;
+            addToCart(productId, productName, productPrice, productImageUrl);
         }
         
         if (e.target.classList.contains('increase-btn')) {

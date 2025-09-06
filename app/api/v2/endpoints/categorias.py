@@ -49,6 +49,99 @@ def listar_categorias_activas(db: Session = Depends(get_session)):
     return categorias
 
 
+@router.get("/buscar_vista", response_class=HTMLResponse)
+async def mostrar_vista_buscar(request: Request):
+    """
+    Mostrar la vista de búsqueda con la navbar de búsqueda
+    """
+    return templates.TemplateResponse(
+        name="_buscar.html", 
+        request=request, 
+        context={}
+    )
+
+
+@router.get("/carrito", response_class=HTMLResponse)
+async def mostrar_carrito_vacio(request: Request):
+    """
+    Mostrar la vista del carrito vacío
+    """
+    return templates.TemplateResponse(
+        name="_carrito.html", 
+        request=request, 
+        context={
+            "cart_items": [],
+            "total": 0.00,
+            "is_empty": True
+        }
+    )
+
+
+@router.post("/carrito", response_class=HTMLResponse)
+async def mostrar_carrito_con_datos(
+    request: Request,
+    cart_data: dict,
+    db: Annotated[Session, Depends(get_session)]
+):
+    """
+    Mostrar la vista del carrito con los productos enviados desde el frontend
+    """
+    try:
+        cart_items = cart_data.get("items", [])
+        
+        if not cart_items:
+            return templates.TemplateResponse(
+                name="_carrito.html", 
+                request=request, 
+                context={
+                    "cart_items": [],
+                    "total": 0.00,
+                    "is_empty": True
+                }
+            )
+        
+        # Procesar los items del carrito y calcular el total
+        processed_items = []
+        total = 0.00
+        
+        for item in cart_items:
+            item_total = float(item.get("price", 0)) * int(item.get("quantity", 0))
+            total += item_total
+            
+            processed_item = {
+                "id": item.get("id"),
+                "name": item.get("name", "Producto"),
+                "price": float(item.get("price", 0)),
+                "quantity": int(item.get("quantity", 0)),
+                "imageUrl": item.get("imageUrl") if item.get("imageUrl") and item.get("imageUrl").strip() != '' else None,
+                "item_total": item_total
+            }
+            processed_items.append(processed_item)
+        
+        return templates.TemplateResponse(
+            name="_carrito.html", 
+            request=request, 
+            context={
+                "cart_items": processed_items,
+                "total": total,
+                "is_empty": False
+            }
+        )
+        
+    except Exception as e:
+        print(f"Error procesando carrito: {e}")
+        return templates.TemplateResponse(
+            name="_carrito.html", 
+            request=request, 
+            context={
+                "cart_items": [],
+                "total": 0.00,
+                "is_empty": True,
+                "error": "Error al cargar el carrito"
+            }
+        )
+
+
 @router.get("/{categoria_id}", response_model=CategoriaRead)
 def obtener_categoria(categoria_id: int, db: Session = Depends(get_session)):
     """
@@ -201,15 +294,3 @@ def obtener_productos_descendientes(
     categorias_hijas = [CategoriaHijaSchema(**categoria) for categoria in categorias_hijas_data]
 
     return templates.TemplateResponse(name="_productos.html", request=request, context={"categoria_padre_id": categoria_id, "productos": productos, "total_productos": len(productos), "categorias_hijas": categorias_hijas})
-
-
-@router.get("/buscar_vista", response_class=HTMLResponse)
-async def mostrar_vista_buscar(request: Request):
-    """
-    Mostrar la vista de búsqueda con la navbar de búsqueda
-    """
-    return templates.TemplateResponse(
-        name="_buscar.html", 
-        request=request, 
-        context={}
-    )
