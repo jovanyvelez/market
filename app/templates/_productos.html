@@ -14,9 +14,9 @@
     {% for producto in productos %}
     <div class="card" 
          hx-get="/api/v2/categorias/producto/{{producto['id']}}/detalle" 
-         hx-target="body" 
-         hx-swap="beforeend"
-         onclick="event.stopPropagation(); if (!event.target.closest('.quantity-control')) { htmx.trigger(this, 'click'); document.body.classList.add('modal-open'); }"
+         hx-target="#reemplazar" 
+         hx-swap="innerHTML"
+         onclick="event.stopPropagation(); if (!event.target.closest('.quantity-control')) { htmx.trigger(this, 'click'); }"
          style="cursor: pointer;">
         <img src="{{producto['imagen_url']}}" alt="{{producto['nombre']}}">
         <span class="precio">$ {{producto["precio"]}}</span>

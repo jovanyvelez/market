@@ -1,0 +1,104 @@
+<div class="detalle-producto-page">
+    <!-- Botón de regreso -->
+    <div class="detalle-header">
+        <button class="btn-volver" 
+                hx-get="/api/v2/categorias/raiz_activas" 
+                hx-target="#reemplazar"
+                hx-swap="innerHTML">
+            ← Volver a categorías
+        </button>
+    </div>
+    
+    <!-- Contenido principal del producto -->
+    <div class="producto-detalle-main">
+        <!-- Imagen del producto -->
+        <div class="producto-imagen-container">
+            {% if producto.imagen_url and producto.imagen_url.strip() != '' %}
+                <img src="{{producto.imagen_url}}" alt="{{producto.nombre}}" 
+                     class="producto-imagen-principal"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="imagen-placeholder-detalle" style="display: none;">
+                    <span>📦</span>
+                </div>
+            {% else %}
+                <div class="imagen-placeholder-detalle">
+                    <span>📦</span>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Información del producto -->
+        <div class="producto-info-container">
+            <div class="producto-categoria-detalle">
+                <span class="categoria-badge">{{producto.categoria_nombre}}</span>
+            </div>
+            
+            <h1 class="producto-titulo">{{producto.nombre}}</h1>
+            
+            <div class="producto-precio-container">
+                <span class="precio-principal">$ {{producto.precio}}</span>
+            </div>
+            
+            <div class="producto-stock-info">
+                <span class="stock-disponible">
+                    {% if producto.stock > 0 %}
+                        ✅ {{producto.stock}} unidades disponibles
+                    {% else %}
+                        ❌ Sin stock disponible
+                    {% endif %}
+                </span>
+            </div>
+            
+            <!-- Controles de compra -->
+            {% if producto.stock > 0 %}
+            <div class="producto-controles">
+                <div class="quantity-control">
+                    <button 
+                        id="addButton_{{producto.id}}" 
+                        class="add-button" 
+                        data-product-id="{{producto.id}}"
+                        data-product-name="{{producto.nombre}}"
+                        data-product-price="{{producto.precio}}"
+                        data-product-image-url="{{producto.imagen_url}}">
+                        Agregar al carrito
+                    </button>
+                    
+                    <div id="quantitySelector_{{producto.id}}" class="quantity-selector hidden">
+                        <button 
+                            id="decreaseBtn_{{producto.id}}" 
+                            class="quantity-btn decrease-btn" 
+                            data-product-id="{{producto.id}}">
+                            -
+                        </button>
+                        <span id="quantityDisplay_{{producto.id}}" class="quantity-display">1</span>
+                        <button 
+                            id="increaseBtn_{{producto.id}}" 
+                            class="quantity-btn increase-btn" 
+                            data-product-id="{{producto.id}}">
+                            +
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Descripción del producto -->
+    <div class="producto-descripcion-section">
+        <h2 class="descripcion-titulo">Características del producto</h2>
+        <div class="descripcion-contenido">
+            <p>{{producto.descripcion or 'No hay descripción disponible para este producto.'}}</p>
+        </div>
+    </div>
+    
+    <!-- Productos relacionados o navegación adicional -->
+    <div class="navegacion-adicional">
+        <button class="btn-secundario" 
+                hx-get="/api/v2/productos/activos" 
+                hx-target="#reemplazar"
+                hx-swap="innerHTML">
+            Ver todos los productos
+        </button>
+    </div>
+</div>

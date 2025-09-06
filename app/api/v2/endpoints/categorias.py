@@ -295,7 +295,7 @@ async def mostrar_detalle_producto(
         }
         
         return templates.TemplateResponse(
-            name="_detalle_producto.html", 
+            name="detalle_producto.html", 
             request=request, 
             context={"producto": producto}
         )
