@@ -202,4 +202,14 @@ def obtener_productos_descendientes(
 
     return templates.TemplateResponse(name="_productos.html", request=request, context={"categoria_padre_id": categoria_id, "productos": productos, "total_productos": len(productos), "categorias_hijas": categorias_hijas})
 
-  
+
+@router.get("/buscar_vista", response_class=HTMLResponse)
+async def mostrar_vista_buscar(request: Request):
+    """
+    Mostrar la vista de búsqueda con la navbar de búsqueda
+    """
+    return templates.TemplateResponse(
+        name="_buscar.html", 
+        request=request, 
+        context={}
+    )
