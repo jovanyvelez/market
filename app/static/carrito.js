@@ -13,27 +13,20 @@ function loadCart() {
 
 // Actualizar la interfaz de todos los productos basado en el carrito
 function updateProductsInterface() {
-    console.log('Updating products interface. Cart items:', cart.length);
-    
     if (cart.length === 0) {
-        console.log('Cart is empty, no interface updates needed');
         return;
     }
     
     cart.forEach(item => {
         const productExists = document.getElementById(`addButton_${item.id}`);
-        console.log(`Checking product ${item.id}:`, productExists ? 'Found' : 'Not found on page');
         
         if (productExists) {
-            console.log(`Syncing product ${item.id} with quantity ${item.quantity}`);
             // Si el producto está en el carrito, mostrar el selector de cantidad
             showQuantitySelector(item.id);
             // Actualizar la cantidad mostrada con la cantidad del carrito
             updateQuantityDisplay(item.id);
         }
     });
-    
-    console.log('Interface update completed');
 }
 
 // Función para sincronizar un producto específico con el carrito
@@ -112,16 +105,12 @@ function showQuantitySelector(productId) {
     const addButton = document.getElementById(`addButton_${productId}`);
     const quantitySelector = document.getElementById(`quantitySelector_${productId}`);
     
-    console.log(`Showing quantity selector for product ${productId}`);
-    console.log('AddButton:', addButton ? 'Found' : 'Not found');
-    console.log('QuantitySelector:', quantitySelector ? 'Found' : 'Not found');
-    
     if (addButton && quantitySelector) {
         addButton.classList.add('hidden');
         quantitySelector.classList.remove('hidden');
-        console.log(`Successfully showed quantity selector for product ${productId}`);
+        console.log(`✅ Quantity selector shown for product ${productId}`);
     } else {
-        console.log(`Failed to show quantity selector for product ${productId}`);
+        console.warn(`❌ Could not find elements for product ${productId}`);
     }
 }
 
@@ -130,16 +119,14 @@ function hideQuantitySelector(productId) {
     const addButton = document.getElementById(`addButton_${productId}`);
     const quantitySelector = document.getElementById(`quantitySelector_${productId}`);
     
-    console.log(`Hiding quantity selector for product ${productId}`);
-    
     if (addButton && quantitySelector) {
         addButton.classList.remove('hidden');
         quantitySelector.classList.add('hidden');
         // Resetear el display de cantidad a 1
         updateQuantityDisplay(productId);
-        console.log(`Successfully hid quantity selector for product ${productId}`);
+        console.log(`✅ Quantity selector hidden for product ${productId}`);
     } else {
-        console.log(`Failed to hide quantity selector for product ${productId}`);
+        console.warn(`❌ Could not find elements for product ${productId}`);
     }
 }
 
@@ -294,40 +281,79 @@ function showNotification(message) {
 
 // Función para enviar el carrito al backend
 function sendCartToBackend() {
+    console.log('Sending cart to backend. Cart length:', cart.length);
+    
     if (!cart || cart.length === 0) {
         // Si el carrito está vacío, usar GET
-        fetch('/api/v2/categorias/carrito')
-        .then(response => response.text())
+        console.log('Cart is empty, using GET request');
+        fetch('/api/v2/categorias/carrito', {
+            method: 'GET',
+            headers: {
+                'Accept': 'text/html',
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.text();
+        })
         .then(html => {
             document.getElementById('reemplazar').innerHTML = html;
+            console.log('Empty cart view loaded successfully');
         })
         .catch(error => {
             console.error('Error cargando carrito vacío:', error);
+            document.getElementById('reemplazar').innerHTML = '<div class="error-message">Error al cargar el carrito</div>';
         });
         return;
     }
     
     // Enviar datos del carrito al backend via POST
+    console.log('Cart has items, using POST request');
     fetch('/api/v2/categorias/carrito', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'Accept': 'text/html',
         },
         body: JSON.stringify({
             items: cart
         })
     })
-    .then(response => response.text())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.text();
+    })
     .then(html => {
         document.getElementById('reemplazar').innerHTML = html;
+        console.log('Cart with items loaded successfully');
     })
     .catch(error => {
         console.error('Error enviando carrito:', error);
         // Fallback a GET si hay error
-        fetch('/api/v2/categorias/carrito')
-        .then(response => response.text())
+        console.log('Falling back to GET request');
+        fetch('/api/v2/categorias/carrito', {
+            method: 'GET',
+            headers: {
+                'Accept': 'text/html',
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.text();
+        })
         .then(html => {
             document.getElementById('reemplazar').innerHTML = html;
+            console.log('Fallback cart view loaded');
+        })
+        .catch(fallbackError => {
+            console.error('Fallback also failed:', fallbackError);
+            document.getElementById('reemplazar').innerHTML = '<div class="error-message">Error al cargar el carrito</div>';
         });
     });
 }
@@ -341,9 +367,28 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Inicializar todas las cantidades en 1 para productos que no están en el carrito
     initializeProductQuantities();
+});
 
-    // Event delegation para botones de agregar al carrito
-    setupEventListeners();
+// Event delegation para botones de agregar al carrito (en scope global)
+document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('add-button')) {
+        const productId = parseInt(e.target.dataset.productId);
+        const productName = e.target.dataset.productName;
+        const productPrice = parseFloat(e.target.dataset.productPrice);
+        const productImageUrl = e.target.dataset.productImageUrl || null;
+        
+        addToCart(productId, productName, productPrice, productImageUrl);
+    }
+    
+    if (e.target.classList.contains('increase-btn')) {
+        const productId = parseInt(e.target.dataset.productId);
+        increaseQuantity(productId);
+    }
+    
+    if (e.target.classList.contains('decrease-btn')) {
+        const productId = parseInt(e.target.dataset.productId);
+        decreaseQuantity(productId);
+    }
 });
 
 // Función para inicializar las cantidades de productos
@@ -355,30 +400,6 @@ function initializeProductQuantities() {
             display.textContent = cartItem.quantity;
         } else {
             display.textContent = '1';
-        }
-    });
-}
-
-// Función para configurar los event listeners
-function setupEventListeners() {
-    // Event delegation para botones de agregar al carrito
-    document.addEventListener('click', (e) => {
-        if (e.target.classList.contains('add-button')) {
-            const productId = parseInt(e.target.dataset.productId);
-            const productName = e.target.dataset.productName;
-            const productPrice = parseFloat(e.target.dataset.productPrice);
-            const productImageUrl = e.target.dataset.productImageUrl || null;
-            addToCart(productId, productName, productPrice, productImageUrl);
-        }
-        
-        if (e.target.classList.contains('increase-btn')) {
-            const productId = parseInt(e.target.dataset.productId);
-            increaseQuantity(productId);
-        }
-        
-        if (e.target.classList.contains('decrease-btn')) {
-            const productId = parseInt(e.target.dataset.productId);
-            decreaseQuantity(productId);
         }
     });
 }
