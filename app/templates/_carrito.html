@@ -1,98 +1,98 @@
+<div id="carrito-content">
 <div class="carrito-container">
     <h2>Mi Carrito de Compras</h2>
     
-    <div id="cart-items" class="cart-items">
-        {% if is_empty %}
+    {% if is_empty %}
+        <div class="cart-items">
             <div class="empty-cart">Tu carrito está vacío</div>
-        {% else %}
-            {% for item in cart_items %}
-            <div class="cart-item">
-                <div class="cart-item-image">
-                    {% if item.imageUrl and item.imageUrl != '/static/default-product.png' %}
-                        <img src="{{ item.imageUrl }}" alt="{{ item.name }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                        <div class="default-image" style="display: none;">📦</div>
-                    {% else %}
-                        <div class="default-image">📦</div>
-                    {% endif %}
-                </div>
-                <div class="cart-item-info">
-                    <div class="cart-item-name">{{ item.name }}</div>
-                    <div class="cart-item-details">${{ "%.2f"|format(item.price) }} c/u</div>
-                </div>
-                <div class="cart-item-controls">
-                    <div class="quantity-controls">
-                        <button class="quantity-btn decrease-btn" data-product-id="{{ item.id }}">-</button>
-                        <span class="quantity-display" id="quantityDisplay_{{ item.id }}">{{ item.quantity }}</span>
-                        <button class="quantity-btn increase-btn" data-product-id="{{ item.id }}">+</button>
+        </div>
+    {% else %}
+        <form id="cart-form" 
+              action="/api/v2/categorias/carrito/checkout" 
+              method="post">
+            <div id="cart-items" class="cart-items">
+                {% for item in cart_items %}
+                <div class="cart-item">
+                    <!-- Campos hidden para datos del producto -->
+                    <input type="hidden" name="items[{{ loop.index0 }}][id]" value="{{ item.id }}">
+                    <input type="hidden" name="items[{{ loop.index0 }}][name]" value="{{ item.name }}">
+                    <input type="hidden" name="items[{{ loop.index0 }}][price]" value="{{ item.price }}">
+                    
+                    <div class="cart-item-image">
+                        {% if item.imageUrl and item.imageUrl != '/static/default-product.png' %}
+                            <img src="{{ item.imageUrl }}" alt="{{ item.name }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="default-image" style="display: none;">📦</div>
+                        {% else %}
+                            <div class="default-image">📦</div>
+                        {% endif %}
                     </div>
-                    <button class="remove-btn" onclick="removeFromCart('{{ item.id }}')">Eliminar</button>
+                    <div class="cart-item-info">
+                        <div class="cart-item-name">{{ item.name }}</div>
+                        <div class="cart-item-details">${{ "%.2f"|format(item.price) }} c/u</div>
+                    </div>
+                    <div class="cart-item-controls">
+                        <div class="quantity-controls">
+                            <button type="button" class="quantity-btn decrease-btn" 
+                                    hx-post="/api/v2/categorias/carrito/decrease/{{ item.id }}"
+                                    hx-target="#reemplazar">-</button>
+                            <input type="number" 
+                                   name="items[{{ loop.index0 }}][quantity]" 
+                                   value="{{ item.quantity }}" 
+                                   min="1" 
+                                   max="{{ item.stock_actual if item.stock_actual else 99 }}"
+                                   class="quantity-display"
+                                   hx-post="/api/v2/categorias/carrito/update/{{ item.id }}"
+                                   hx-target="#reemplazar"
+                                   hx-trigger="change">
+                            <button type="button" class="quantity-btn increase-btn"
+                                    hx-post="/api/v2/categorias/carrito/increase/{{ item.id }}"
+                                    hx-target="#reemplazar">+</button>
+                        </div>
+                        <button type="button" class="remove-btn" 
+                                hx-post="/api/v2/categorias/carrito/remove/{{ item.id }}"
+                                hx-target="#reemplazar"
+                                hx-confirm="¿Eliminar {{ item.name }} del carrito?">
+                            Eliminar
+                        </button>
+                    </div>
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-        {% endif %}
-    </div>
+        </form>
+    {% endif %}
     
     <div class="cart-total-section">
         <div class="cart-total">
             <strong>Total: $</strong><span id="cart-total">{{ "%.2f"|format(total) }}</span>
         </div>
-        <button id="checkout-btn" class="checkout-btn" onclick="checkout()" {% if is_empty %}disabled{% endif %}>
-            Finalizar Compra
-        </button>
+        
+        {% if not is_empty %}
+            <button type="submit" form="cart-form" class="checkout-btn"> 
+                Finalizar Compra
+            </button>
+        {% else %}
+            <button class="checkout-btn" disabled>Finalizar Compra</button>
+        {% endif %}
     </div>
     
     {% if error %}
     <div class="error-message">{{ error }}</div>
     {% endif %}
-    
-    <div id="notification" class="notification"></div>
+</div>
 </div>
 
+<!-- Script simple para el carrito -->
 <script>
-// Función para enviar el carrito al backend
-function sendCartToBackend() {
-    if (!window.cart || cart.length === 0) {
-        // Si el carrito está vacío, usar GET
-        htmx.ajax('GET', '/api/v2/categorias/carrito', {target: '#reemplazar'});
-        return;
-    }
-    
-    // Enviar datos del carrito al backend via POST
-    fetch('/api/v2/categorias/carrito', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            items: cart
-        })
-    })
-    .then(response => response.text())
-    .then(html => {
-        document.getElementById('reemplazar').innerHTML = html;
-    })
-    .catch(error => {
-        console.error('Error enviando carrito:', error);
-        // Fallback a GET si hay error
-        htmx.ajax('GET', '/api/v2/categorias/carrito', {target: '#reemplazar'});
-    });
-}
-
-// Cargar el carrito cuando se muestre esta vista
 document.addEventListener('DOMContentLoaded', function() {
-    if (typeof updateCartDisplay === 'function') {
-        updateCartDisplay();
-    }
-});
-
-// También ejecutar cuando HTMX carga esta vista
-document.addEventListener('htmx:afterSwap', function(event) {
-    if (event.target.id === 'reemplazar') {
-        setTimeout(function() {
-            if (typeof updateCartDisplay === 'function') {
-                updateCartDisplay();
-            }
-        }, 100);
+    console.log('Template de carrito cargado');
+    
+    // Solo mantener funcionalidad básica del carrito
+    const cartForm = document.getElementById('cart-form');
+    if (cartForm) {
+        cartForm.addEventListener('submit', function(event) {
+            console.log('Enviando formulario del carrito...');
+            // El formulario se enviará normalmente y redirigirá a la página de éxito
+        });
     }
 });
 </script>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compra Exitosa - Tienda</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/htmx.js"></script>
+    <script src="/static/carrito.js"></script>
+</head>
+<body>
+    <div id="header">
+        <!-- Barra de navegación -->
+        <nav class="navbar">
+            <div class="navbar-content">
+                <button class="back-btn" onclick="window.location.href='/'">
+                    ← Volver al Inicio
+                </button>
+                <h1 class="navbar-title">🛒 Mi Tienda</h1>
+                <div class="cart-container">
+                    <button class="cart-btn" 
+                            hx-get="/api/v2/categorias/carrito"
+                            hx-target="#main-content"
+                            hx-swap="innerHTML">
+                        🛒 Carrito
+                        <span id="cart-count" class="cart-count" style="display: none;">0</span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <main id="main-content">
+        <!-- Mensaje de éxito prominente -->
+        <div class="success-container">
+            <div class="success-card">
+                <div class="success-icon">✅</div>
+                <h2 class="success-title">¡Compra Realizada con Éxito!</h2>
+                
+                {% if success_message %}
+                <div class="success-message">
+                    {{ success_message }}
+                </div>
+                {% endif %}
+                
+                <div class="purchase-summary">
+                    {% if order_total %}
+                    <div class="summary-item">
+                        <strong>Total Pagado: ${{ "%.2f"|format(order_total) }}</strong>
+                    </div>
+                    {% endif %}
+                    
+                    {% if items_purchased %}
+                    <div class="summary-item">
+                        Productos Comprados: {{ items_purchased }}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="summary-item">
+                        <small>Fecha: {{ now.strftime("%d/%m/%Y %H:%M") if now else "" }}</small>
+                    </div>
+                </div>
+                
+                <div class="success-actions">
+                    <button class="btn-primary" onclick="window.location.href='/'">
+                        🏠 Continuar Comprando
+                    </button>
+                    <button class="btn-secondary" 
+                            hx-get="/api/v2/categorias/carrito"
+                            hx-target="#main-content"
+                            hx-swap="innerHTML">
+                        🛒 Ver Carrito
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Script para limpiar localStorage después del éxito -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('=== PÁGINA DE ÉXITO CARGADA ===');
+        
+        // Limpiar localStorage automáticamente
+        console.log('localStorage antes de limpiar:', {
+            cart: localStorage.getItem('cart'),
+            shoppingCart: localStorage.getItem('shoppingCart'),
+            cartCount: localStorage.getItem('cartCount')
+        });
+        
+        // Limpiar carrito del localStorage
+        if (typeof clearCart === 'function') {
+            console.log('Usando función clearCart()');
+            clearCart();
+        } else {
+            console.log('clearCart() no disponible, limpiando manualmente');
+            localStorage.removeItem('cart');
+            localStorage.removeItem('shoppingCart');
+            localStorage.removeItem('cartCount');
+            
+            // Actualizar contador en la navbar
+            const cartCount = document.getElementById('cart-count');
+            if (cartCount) {
+                cartCount.textContent = '0';
+                cartCount.style.display = 'none';
+            }
+            
+            // También limpiar la variable global cart si existe
+            if (typeof window.cart !== 'undefined') {
+                window.cart = [];
+            }
+        }
+        
+        console.log('localStorage después de limpiar:', {
+            cart: localStorage.getItem('cart'),
+            shoppingCart: localStorage.getItem('shoppingCart'),
+            cartCount: localStorage.getItem('cartCount')
+        });
+        
+        console.log('=== CARRITO LIMPIADO EXITOSAMENTE ===');
+        
+        // Opcional: mostrar notificación temporal
+        setTimeout(() => {
+            const notification = document.createElement('div');
+            notification.className = 'temp-notification';
+            notification.innerHTML = '🎉 ¡Tu carrito se ha limpiado automáticamente!';
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #28a745;
+                color: white;
+                padding: 15px;
+                border-radius: 8px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                z-index: 1000;
+                font-weight: bold;
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }, 500);
+    });
+    </script>
+</body>
+</html>

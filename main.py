@@ -42,3 +42,4 @@ def read_root(db: Annotated[Session, Depends(get_session)], request: Request):
 @app.get("/test", response_class=HTMLResponse)
 async def test(request: Request):
     return templates.TemplateResponse(request=request, name="test.html")
+

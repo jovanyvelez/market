@@ -246,10 +246,15 @@ function checkout() {
     alert('¡Compra realizada con éxito! Total: $' +
         cart.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2));
 
-    // Vaciar carrito después de la compra
+    // Usar la función clearCart para limpiar
+    clearCart();
+}
+
+// Función específica para limpiar el carrito
+function clearCart() {
+    // Vaciar carrito
     cart = [];
     saveCart();
-    updateCartDisplay();
     updateCartCount();
     
     // Resetear todos los selectores de cantidad
@@ -264,6 +269,8 @@ function checkout() {
     document.querySelectorAll('[id^="quantityDisplay_"]').forEach(display => {
         display.textContent = '1';
     });
+    
+    console.log('Carrito limpiado exitosamente');
 }
 
 // Mostrar notificación

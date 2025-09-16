@@ -5,7 +5,7 @@ Endpoints API para Categorías
 from typing import List, Annotated
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlmodel import Session, text
 
 from app.core.database import get_session
@@ -343,3 +343,238 @@ def obtener_detalle_producto(
             "categoria_nombre": producto_data["categoria_nombre"]
         }
     )
+
+
+# ============================================================================
+# ENDPOINTS PARA FORMULARIO DEL CARRITO
+# ============================================================================
+
+@router.post("/carrito/increase/{product_id}", response_class=HTMLResponse)
+async def aumentar_cantidad_carrito(
+    product_id: int,
+    request: Request,
+    db: Annotated[Session, Depends(get_session)]
+):
+    """
+    Aumentar cantidad de un producto en el carrito (para botón +)
+    """
+    # Obtener carrito de session o cookie temporal
+    # Por ahora vamos a devolver el carrito vacío como placeholder
+    return templates.TemplateResponse(
+        name="_carrito.html", 
+        request=request, 
+        context={
+            "cart_items": [],
+            "total": 0.00,
+            "is_empty": True
+        }
+    )
+
+
+@router.post("/carrito/decrease/{product_id}", response_class=HTMLResponse)
+async def disminuir_cantidad_carrito(
+    product_id: int,
+    request: Request,
+    db: Annotated[Session, Depends(get_session)]
+):
+    """
+    Disminuir cantidad de un producto en el carrito (para botón -)
+    """
+    # Obtener carrito de session o cookie temporal
+    # Por ahora vamos a devolver el carrito vacío como placeholder
+    return templates.TemplateResponse(
+        name="_carrito.html", 
+        request=request, 
+        context={
+            "cart_items": [],
+            "total": 0.00,
+            "is_empty": True
+        }
+    )
+
+
+@router.post("/carrito/update/{product_id}", response_class=HTMLResponse)
+async def actualizar_cantidad_carrito(
+    product_id: int,
+    request: Request,
+    db: Annotated[Session, Depends(get_session)]
+):
+    """
+    Actualizar cantidad específica de un producto en el carrito (input number)
+    """
+    # Obtener nueva cantidad del form data
+    form_data = await request.form()
+    # Procesar actualización...
+    # Por ahora vamos a devolver el carrito vacío como placeholder
+    return templates.TemplateResponse(
+        name="_carrito.html", 
+        request=request, 
+        context={
+            "cart_items": [],
+            "total": 0.00,
+            "is_empty": True
+        }
+    )
+
+
+@router.post("/carrito/remove/{product_id}", response_class=HTMLResponse)
+async def eliminar_producto_carrito(
+    product_id: int,
+    request: Request,
+    db: Annotated[Session, Depends(get_session)]
+):
+    """
+    Eliminar un producto del carrito
+    """
+    # Procesar eliminación...
+    # Por ahora vamos a devolver el carrito vacío como placeholder
+    return templates.TemplateResponse(
+        name="_carrito.html", 
+        request=request, 
+        context={
+            "cart_items": [],
+            "total": 0.00,
+            "is_empty": True
+        }
+    )
+
+
+@router.post("/carrito/checkout", response_class=HTMLResponse)
+async def procesar_checkout(
+    request: Request,
+    db: Annotated[Session, Depends(get_session)]
+):
+    """
+    Procesar la compra final del carrito (submit del formulario)
+    """
+    try:
+        print("=== INICIANDO CHECKOUT ===")
+        
+        # Obtener datos del formulario
+        form_data = await request.form()
+        print(f"Form data recibido: {dict(form_data)}")
+        
+        # Procesar items del carrito desde el formulario
+        cart_items = []
+        item_index = 0
+        
+        while f"items[{item_index}][id]" in form_data:
+            item = {
+                "id": int(form_data[f"items[{item_index}][id]"]),
+                "name": form_data[f"items[{item_index}][name]"],
+                "price": float(form_data[f"items[{item_index}][price]"]),
+                "quantity": int(form_data[f"items[{item_index}][quantity]"])
+            }
+            cart_items.append(item)
+            print(f"Item procesado: {item}")
+            item_index += 1
+        
+        if not cart_items:
+            print("No hay items en el carrito")
+            return templates.TemplateResponse(
+                name="_carrito.html", 
+                request=request, 
+                context={
+                    "cart_items": [],
+                    "total": 0.00,
+                    "is_empty": True,
+                    "error": "No hay productos en el carrito"
+                }
+            )
+        
+        # Validar productos contra la base de datos y calcular total
+        validated_items = []
+        total = 0.00
+        
+        for item in cart_items:
+            print(f"Validando producto ID: {item['id']}")
+            
+            # Verificar que el producto existe y está activo
+            statement = text("""
+                SELECT id, nombre, precio_venta, stock_actual, activo
+                FROM producto 
+                WHERE id = :producto_id AND activo = true
+            """)
+            
+            result = db.execute(statement, {"producto_id": item['id']}).first()
+            
+            if not result:
+                print(f"Producto ID {item['id']} no encontrado o inactivo")
+                continue
+                
+            # Verificar stock disponible
+            if result.stock_actual < item['quantity']:
+                print(f"Stock insuficiente para {result.nombre}. Disponible: {result.stock_actual}, Solicitado: {item['quantity']}")
+                # Por ahora continuamos, pero en producción podrías manejar esto diferente
+                available_quantity = max(0, int(result.stock_actual))
+                if available_quantity == 0:
+                    continue
+                item['quantity'] = available_quantity
+            
+            # Usar precio actual de la base de datos
+            actual_price = float(result.precio_venta)
+            item_total = actual_price * item['quantity']
+            total += item_total
+            
+            validated_items.append({
+                "id": result.id,
+                "name": result.nombre,
+                "price": actual_price,
+                "quantity": item['quantity'],
+                "item_total": item_total
+            })
+            
+            print(f"Item validado: {result.nombre} - Cantidad: {item['quantity']} - Total: ${item_total:.2f}")
+        
+        if not validated_items:
+            print("No hay items válidos después de la validación")
+            return templates.TemplateResponse(
+                name="_carrito.html", 
+                request=request, 
+                context={
+                    "cart_items": [],
+                    "total": 0.00,
+                    "is_empty": True,
+                    "error": "No hay productos válidos en el carrito"
+                }
+            )
+        
+        print(f"=== CHECKOUT EXITOSO ===")
+        print(f"Total de items: {len(validated_items)}")
+        print(f"Total a pagar: ${total:.2f}")
+        
+        # TODO: Aquí implementarías:
+        # - Reducir stock de productos
+        # - Crear registro de pedido
+        # - Procesar pago
+        # - Enviar confirmación por email
+        
+        # Obtener timestamp actual
+        from datetime import datetime
+        now = datetime.now()
+        
+        # Devolver página de éxito completa
+        print("Devolviendo página de éxito completa...")
+        return templates.TemplateResponse(
+            name="checkout_success.html", 
+            request=request, 
+            context={
+                "success_message": f"¡Compra procesada exitosamente! Total: ${total:.2f}",
+                "order_total": total,
+                "items_purchased": len(validated_items),
+                "now": now
+            }
+        )
+        
+    except Exception as e:
+        print(f"Error en checkout: {str(e)}")
+        return templates.TemplateResponse(
+            name="_carrito.html", 
+            request=request, 
+            context={
+                "cart_items": [],
+                "total": 0.00,
+                "is_empty": True,
+                "error": f"Error procesando la compra: {str(e)}"
+            }
+        )
