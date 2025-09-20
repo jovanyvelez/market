@@ -59,7 +59,7 @@ function updateCartCount() {
     }
 }
 
-// Función mejorada para añadir al carrito
+// Función para añadir al carrito
 function addToCart(id, name, price, imageUrl = null) {
     const existingItem = cart.find(item => item.id === id);
 
@@ -173,7 +173,7 @@ function removeFromCart(id) {
     showNotification('Producto eliminado del carrito');
 }
 
-// Actualizar la visualización del carrito (RESTAURADA - funcionaba correctamente)
+// Actualizar la visualización del carrito
 function updateCartDisplay() {
     const cartItems = document.getElementById('cart-items');
     const cartTotal = document.getElementById('cart-total');
@@ -214,7 +214,7 @@ function updateCartDisplay() {
                         <span class="quantity-display" id="quantityDisplay_${item.id}">${item.quantity}</span>
                         <button class="quantity-btn increase-btn" data-product-id="${item.id}">+</button>
                     </div>
-                    <button class="remove-btn" onclick="removeFromCart(${item.id})">Eliminar</button>
+                    <button class="remove-btn" data-product-id="${item.id}">Eliminar</button>
                 </div>
             </div>
         `;
@@ -260,42 +260,43 @@ function clearCart() {
     document.querySelectorAll('[id^="quantityDisplay_"]').forEach(display => {
         display.textContent = '1';
     });
+
+    updateCartDisplay();
 }
 
-// Generar form para checkout con datos del carrito
+// Generar formulario para checkout con datos del carrito
 function generateCheckoutForm() {
-    const checkoutForm = document.getElementById('checkout-form');
-    if (!checkoutForm) return;
-    
-    // Limpiar inputs existentes
-    const existingInputs = checkoutForm.querySelectorAll('input[type="hidden"]');
-    existingInputs.forEach(input => input.remove());
-    
-    // Generar inputs para cada item del carrito
-    cart.forEach((item, index) => {
-        const createInput = (name, value) => {
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = name;
-            input.value = value;
-            return input;
-        };
-        
-        checkoutForm.appendChild(createInput(`items[${index}][id]`, item.id));
-        checkoutForm.appendChild(createInput(`items[${index}][name]`, item.name));
-        checkoutForm.appendChild(createInput(`items[${index}][price]`, item.price));
-        checkoutForm.appendChild(createInput(`items[${index}][quantity]`, item.quantity));
-        
-        if (item.imageUrl) {
-            checkoutForm.appendChild(createInput(`items[${index}][imageUrl]`, item.imageUrl));
-        }
-    });
-    
-    // Habilitar/deshabilitar botón de checkout
-    const checkoutBtn = document.getElementById('checkout-btn');
-    if (checkoutBtn) {
-        checkoutBtn.disabled = cart.length === 0;
-    }
+    const checkoutContainer = document.getElementById('checkout-container');
+    if (!checkoutContainer) return;
+
+    // Limpiar contenido existente
+    checkoutContainer.innerHTML = '';
+
+    // Crear el formulario con HTMX
+    const form = document.createElement('form');
+    form.setAttribute('action', '/procesar-carrito');
+    form.setAttribute('method', 'post');
+    //form.setAttribute('hx-swap', 'innerHTML');
+    //form.setAttribute('hx-on:htmx:after-request', 'clearCart()');
+
+    // Crear input hidden con los datos del carrito
+    const cartInput = document.createElement('input');
+    cartInput.type = 'hidden';
+    cartInput.name = 'lista';
+    cartInput.value = JSON.stringify(cart);
+    form.appendChild(cartInput);
+
+    // Crear el botón submit
+    const submitBtn = document.createElement('button');
+    submitBtn.type = 'submit';
+    submitBtn.id = 'checkout-btn';
+    submitBtn.className = 'checkout-btn';
+    submitBtn.onclick = 'clearCart()';
+    submitBtn.textContent = 'Finalizar Compra';
+    submitBtn.disabled = cart.length === 0;
+    form.appendChild(submitBtn);
+
+    checkoutContainer.appendChild(form);
 }
 
 // Mostrar notificación
@@ -324,8 +325,124 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCartDisplay();
 });
 
+// Función para mostrar la vista completa del carrito desde JavaScript
+function mostrarCarrito() {
+    // Si ya estamos en la vista del carrito, no hacer nada
+    if (document.querySelector('.carrito-container')) {
+        console.log('Ya estamos en la vista del carrito');
+        return;
+    }
+    
+    // Crear HTML completo del carrito
+    const html = `     
+        <div class="carrito-container">
+            <h2>Mi Carrito de Compras</h2>
+            
+            <div id="cart-items" class="cart-items">
+                <!-- Los items se generarán aquí -->
+            </div>
+            
+            <div class="cart-total-section">
+                <div class="cart-total">
+                    <strong>Total: $</strong><span id="cart-total">0.00</span>
+                </div>
+                <div id="checkout-container">
+                    <!-- El botón se generará aquí dinámicamente -->
+                </div>
+            </div>
+            
+            <div id="notification" class="notification"></div>
+            <div id="resultado"></div>
+        </div>
+    `;
+    
+    // Reemplazar solo el contenido del div "reemplazar" en lugar de todo el body
+    const reemplazarDiv = document.getElementById('reemplazar');
+    if (reemplazarDiv) {
+        reemplazarDiv.innerHTML = html;
+    } else {
+        console.error('No se encontró el div con id "reemplazar"');
+        return;
+    }
+    
+    // Cargar el carrito desde localStorage
+    loadCart();
+    
+    // Generar la vista del carrito
+    updateCartDisplay();
+    
+    // Configurar event listeners para los botones dinámicos
+    setupCartEventListeners();
+    
+    console.log('Vista del carrito cargada en el div "reemplazar"');
+}
+
+// Función para volver a la vista de productos
+function volverAProductos() {
+    // Usar HTMX para cargar la vista de productos en el div "reemplazar"
+    if (typeof htmx !== 'undefined') {
+        // Cargar la vista de categorías raíz activas
+        fetch('/api/v2/categorias/raiz_activas')
+            .then(response => response.text())
+            .then(html => {
+                const reemplazarDiv = document.getElementById('reemplazar');
+                if (reemplazarDiv) {
+                    reemplazarDiv.innerHTML = html;
+                    // Recargar las funciones del carrito después de cambiar el contenido
+                    setTimeout(() => {
+                        loadCart();
+                        updateCartCount();
+                        updateProductsInterface();
+                    }, 100);
+                }
+            })
+            .catch(error => {
+                console.error('Error cargando productos:', error);
+                // Fallback: recargar la página completa
+                window.location.href = '/';
+            });
+    } else {
+        // Fallback si HTMX no está disponible
+        window.location.href = '/';
+    }
+}
+
+// Configurar event listeners para botones dinámicos del carrito
+function setupCartEventListeners() {
+    // Event delegation para manejar clicks en botones dinámicos del carrito
+    document.addEventListener('click', function(event) {
+        const target = event.target;
+        
+        // Manejar clicks en botones de cantidad (usando data-product-id)
+        if (target.classList.contains('increase-btn')) {
+            const productId = parseInt(target.dataset.productId);
+            increaseQuantity(productId);
+            event.preventDefault();
+        }
+        
+        if (target.classList.contains('decrease-btn')) {
+            const productId = parseInt(target.dataset.productId);
+            decreaseQuantity(productId);
+            event.preventDefault();
+        }
+        
+        // Manejar clicks en el icono del carrito (solo si no estamos ya en la vista del carrito)
+        if (target.closest('#cart-icon') && !document.querySelector('.carrito-container')) {
+            mostrarCarrito();
+            event.preventDefault();
+        }
+    });
+    
+    console.log('Event listeners del carrito configurados');
+}
+
 // Event delegation para botones de agregar al carrito (en scope global)
 document.addEventListener('click', (e) => {
+    // Evitar procesar clicks en el cart-icon
+    if (e.target.closest('#cart-icon') || e.target.id === 'cart-icon') {
+        return;
+    }
+    
     if (e.target.classList.contains('add-button')) {
         const productId = parseInt(e.target.dataset.productId);
         const productName = e.target.dataset.productName;
@@ -345,7 +462,11 @@ document.addEventListener('click', (e) => {
         decreaseQuantity(productId);
     }
     
-    // Remover: el botón remove-btn usa onclick="removeFromCart()" directamente
+    // Manejar clicks en botones de eliminar
+    if (e.target.classList.contains('remove-btn')) {
+        const productId = parseInt(e.target.dataset.productId);
+        removeFromCart(productId);
+    }
 });
 
 // Función para inicializar las cantidades de productos

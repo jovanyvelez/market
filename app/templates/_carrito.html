@@ -63,7 +63,12 @@
             {% endif %}
             {% endfor %}
 
-            <button id="checkout-btn" class="checkout-btn" type="submit">
+            <button id="checkout-btn" class="checkout-btn" type="submit
+                    hx-post="/carrito" 
+                    hx-vals='js:{datos: window.cart}'
+                    hx-trigger="click"
+                    hx-swap="#reemplazar"
+                    onclick="clearCart()">
                 Finalizar Compra
             </button>
         </form>

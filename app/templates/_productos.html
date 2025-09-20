@@ -66,14 +66,5 @@
 <script>
 
 
-    // También ejecutar cuando HTMX carga esta vista
-    document.addEventListener('htmx:afterSwap', function (event) {
-        if (event.target.id === 'reemplazar') {
-            setTimeout(function () {
-                if (typeof updateCartDisplay === 'function') {
-                    updateCartDisplay();
-                }
-            }, 100);
-        }
-    });
+
 </script>

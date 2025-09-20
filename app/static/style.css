@@ -1269,3 +1269,76 @@ h3 {
     from { transform: translateX(100%); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
 }
+
+/* ===================================================================== */
+/* ESTILOS PARA MENSAJES DE RESULTADO HTMX */
+/* ===================================================================== */
+
+.result {
+    margin: 20px 0;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid;
+    font-size: 16px;
+    line-height: 1.5;
+    animation: slideIn 0.3s ease-out;
+}
+
+.result.success {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+}
+
+.result.error {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
+
+.result h3 {
+    margin: 0 0 15px 0;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.result p {
+    margin: 8px 0;
+    font-weight: 500;
+}
+
+.result .item {
+    background: rgba(255, 255, 255, 0.7);
+    margin: 8px 0;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border-left: 3px solid;
+    font-size: 14px;
+}
+
+.result.success .item {
+    border-left-color: #28a745;
+}
+
+.result.error .item {
+    border-left-color: #dc3545;
+}
+
+/* Responsive para mensajes de resultado */
+@media (max-width: 768px) {
+    .result {
+        margin: 15px 0;
+        padding: 15px;
+        font-size: 15px;
+    }
+    
+    .result h3 {
+        font-size: 18px;
+        margin-bottom: 12px;
+    }
+    
+    .result .item {
+        padding: 6px 10px;
+        font-size: 13px;
+    }
+}

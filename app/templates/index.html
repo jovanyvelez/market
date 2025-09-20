@@ -16,7 +16,11 @@
         {% include '_buscar.html' %}
     </div>
     <div id="reemplazar">
-        {% include '_categorias.html' %}
+        {% if total_items == 0 %}
+            {% include '_categorias.html' %}
+        {% else %}
+            {% include 'checkout_success_partial.html' %}
+        {% endif %}
     </div>
 </body>
 

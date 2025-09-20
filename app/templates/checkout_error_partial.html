@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css?v=9">
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+    <title>Tu Market - Error</title>
+    <script src="/static/htmx.js"></script>
+    <script src="/static/carrito.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <button class="back-btn" onclick="volverAProductos()">
+                ← Volver a Productos
+            </button>
+            <div class="search-wrapper">
+                <input type="text" placeholder="Buscar productos..." id="buscar-input">
+            </div>
+            <div id="cart-icon" class="cart-icon" onclick="mostrarCarrito()">
+                <span>🛒</span>
+                <span id="cart-count">0</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class='result error'>
+        <h3>❌ {{ error_title or "Error" }}</h3>
+        <p>{{ error_message or "Ha ocurrido un error inesperado." }}</p>
+        <div style="margin-top: 20px;">
+            <button onclick="volverAProductos()" style="background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                Volver a Productos
+            </button>
+        </div>
+    </div>
+</body>
+</html>

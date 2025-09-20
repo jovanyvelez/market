@@ -10,8 +10,7 @@
                 hx-trigger="keyup changed delay:500ms" hx-include="this">
         </div>
         
-        <div id="cart-icon" class="cart-icon" hx-get="/carrito" hx-trigger="click" hx-target="#reemplazar"
-        hx-swap="innerHTML">
+        <div id="cart-icon" class="cart-icon" onclick="mostrarCarrito()">
             <span style="color: white;" >🛒</span> 
             <span id="cart-count">0</span>
         </div>
