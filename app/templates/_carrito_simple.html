@@ -1,0 +1,41 @@
+<!-- Vista simple del carrito - solo contenedor -->
+<div class="carrito-container">
+    <h2>Mi Carrito de Compras</h2>
+    
+    <!-- JavaScript genera todo el contenido aquí -->
+    <div id="cart-items" class="cart-items">
+        <!-- Contenido generado dinámicamente por JavaScript -->
+    </div>
+    
+    <div class="cart-total-section">
+        <div class="cart-total">
+            <strong>Total: $</strong><span id="cart-total">0.00</span>
+        </div>
+        
+        <form action="/checkout" method="post" id="checkout-form">
+            <!-- JavaScript genera inputs hidden aquí -->
+            <button id="checkout-btn" class="checkout-btn" type="submit">
+                Finalizar Compra
+            </button>
+        </form>
+    </div>
+    
+    <div id="notification" class="notification"></div>
+</div>
+
+<script>
+// Solo llamar a la función JavaScript
+document.addEventListener('DOMContentLoaded', function () {
+    console.log('Vista simple del carrito cargada');
+    
+    // Una sola función maneja todo
+    if (typeof updateCartDisplay === 'function') {
+        updateCartDisplay();
+    }
+    
+    // Generar form para checkout
+    if (typeof generateCheckoutForm === 'function') {
+        generateCheckoutForm();
+    }
+});
+</script>

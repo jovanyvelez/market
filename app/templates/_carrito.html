@@ -1,98 +1,120 @@
-<div id="carrito-content">
 <div class="carrito-container">
     <h2>Mi Carrito de Compras</h2>
-    
-    {% if is_empty %}
-        <div class="cart-items">
-            <div class="empty-cart">Tu carrito está vacío</div>
-        </div>
-    {% else %}
-        <form id="cart-form" 
-              action="/api/v2/categorias/carrito/checkout" 
-              method="post">
-            <div id="cart-items" class="cart-items">
-                {% for item in cart_items %}
-                <div class="cart-item">
-                    <!-- Campos hidden para datos del producto -->
-                    <input type="hidden" name="items[{{ loop.index0 }}][id]" value="{{ item.id }}">
-                    <input type="hidden" name="items[{{ loop.index0 }}][name]" value="{{ item.name }}">
-                    <input type="hidden" name="items[{{ loop.index0 }}][price]" value="{{ item.price }}">
-                    
-                    <div class="cart-item-image">
-                        {% if item.imageUrl and item.imageUrl != '/static/default-product.png' %}
-                            <img src="{{ item.imageUrl }}" alt="{{ item.name }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div class="default-image" style="display: none;">📦</div>
-                        {% else %}
-                            <div class="default-image">📦</div>
-                        {% endif %}
-                    </div>
-                    <div class="cart-item-info">
-                        <div class="cart-item-name">{{ item.name }}</div>
-                        <div class="cart-item-details">${{ "%.2f"|format(item.price) }} c/u</div>
-                    </div>
-                    <div class="cart-item-controls">
-                        <div class="quantity-controls">
-                            <button type="button" class="quantity-btn decrease-btn" 
-                                    hx-post="/api/v2/categorias/carrito/decrease/{{ item.id }}"
-                                    hx-target="#reemplazar">-</button>
-                            <input type="number" 
-                                   name="items[{{ loop.index0 }}][quantity]" 
-                                   value="{{ item.quantity }}" 
-                                   min="1" 
-                                   max="{{ item.stock_actual if item.stock_actual else 99 }}"
-                                   class="quantity-display"
-                                   hx-post="/api/v2/categorias/carrito/update/{{ item.id }}"
-                                   hx-target="#reemplazar"
-                                   hx-trigger="change">
-                            <button type="button" class="quantity-btn increase-btn"
-                                    hx-post="/api/v2/categorias/carrito/increase/{{ item.id }}"
-                                    hx-target="#reemplazar">+</button>
-                        </div>
-                        <button type="button" class="remove-btn" 
-                                hx-post="/api/v2/categorias/carrito/remove/{{ item.id }}"
-                                hx-target="#reemplazar"
-                                hx-confirm="¿Eliminar {{ item.name }} del carrito?">
-                            Eliminar
-                        </button>
-                    </div>
-                </div>
-                {% endfor %}
+
+    <div id="cart-items" class="cart-items" data-server-rendered="true">
+        {% if cart_items and cart_items|length > 0 %}
+        {% for item in cart_items %}
+        <div class="cart-item" data-product-id="{{ item.id }}">
+            <div class="cart-item-image">
+                {% if item.imageUrl and item.imageUrl.strip() != '' %}
+                <img src="{{ item.imageUrl }}" alt="{{ item.name }}"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="default-image" style="display: none;">📦</div>
+                {% else %}
+                <div class="default-image">📦</div>
+                {% endif %}
             </div>
-        </form>
-    {% endif %}
-    
-    <div class="cart-total-section">
-        <div class="cart-total">
-            <strong>Total: $</strong><span id="cart-total">{{ "%.2f"|format(total) }}</span>
+
+            <div class="cart-item-info">
+                <div class="cart-item-name">{{ item.name }}</div>
+                <div class="cart-item-details">${{ "%.2f"|format(item.price) }} c/u</div>
+            </div>
+
+            <div class="cart-item-controls">
+                <div class="quantity-controls">
+                    <button class="quantity-btn decrease-btn" data-product-id="{{ item.id }}">-</button>
+                    <span class="quantity-display" id="quantityDisplay_{{ item.id }}">{{ item.quantity }}</span>
+                    <button class="quantity-btn increase-btn" data-product-id="{{ item.id }}">+</button>
+                </div>
+                <button class="remove-btn" onclick="removeFromCart({{ item.id }})">Eliminar</button>
+            </div>
         </div>
-        
-        {% if not is_empty %}
-            <button type="submit" form="cart-form" class="checkout-btn"> 
-                Finalizar Compra
-            </button>
+        {% endfor %}
         {% else %}
-            <button class="checkout-btn" disabled>Finalizar Compra</button>
+        <div class="empty-cart">Tu carrito está vacío</div>
         {% endif %}
     </div>
-    
+
+    <div class="cart-total-section">
+        <div class="cart-total">
+            <strong>Total: $</strong><span id="cart-total">
+                {% if cart_items and cart_items|length > 0 %}
+                {% set total = 0 %}
+                {% for item in cart_items %}
+                {% set total = total + (item.price * item.quantity) %}
+                {% endfor %}
+                {{ "%.2f"|format(total) }}
+                {% else %}
+                0.00
+                {% endif %}
+            </span>
+        </div>
+
+        {% if cart_items and cart_items|length > 0 %}
+        <form action="/checkout" method="post">
+            {% for item in cart_items %}
+            <!-- Campos ocultos para enviar datos del carrito -->
+            <input type="hidden" name="items[{{ loop.index0 }}][id]" value="{{ item.id }}">
+            <input type="hidden" name="items[{{ loop.index0 }}][name]" value="{{ item.name }}">
+            <input type="hidden" name="items[{{ loop.index0 }}][price]" value="{{ item.price }}">
+            <input type="hidden" name="items[{{ loop.index0 }}][quantity]" value="{{ item.quantity }}">
+            {% if item.imageUrl %}
+            <input type="hidden" name="items[{{ loop.index0 }}][imageUrl]" value="{{ item.imageUrl }}">
+            {% endif %}
+            {% endfor %}
+
+            <button id="checkout-btn" class="checkout-btn" type="submit">
+                Finalizar Compra
+            </button>
+        </form>
+        {% else %}
+        <button id="checkout-btn" class="checkout-btn" disabled>
+            Finalizar Compra
+        </button>
+        {% endif %}
+    </div>
+
     {% if error %}
     <div class="error-message">{{ error }}</div>
     {% endif %}
-</div>
+
+    {% if success_message %}
+    <div class="success-message">{{ success_message }}</div>
+    {% endif %}
+
+    <div id="notification" class="notification"></div>
 </div>
 
-<!-- Script simple para el carrito -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Template de carrito cargado');
+// Script para integrar con carrito.js existente
+document.addEventListener('DOMContentLoaded', function () {
+    console.log('Template de carrito cargado desde FastAPI');
     
-    // Solo mantener funcionalidad básica del carrito
-    const cartForm = document.getElementById('cart-form');
-    if (cartForm) {
-        cartForm.addEventListener('submit', function(event) {
-            console.log('Enviando formulario del carrito...');
-            // El formulario se enviará normalmente y redirigirá a la página de éxito
-        });
+    // Sincronizar localStorage con los datos del servidor
+    const cartItems = [
+        {% for item in cart_items %}
+        {
+            id: {{ item.id }},
+            name: "{{ item.name|e }}",
+            price: {{ item.price }},
+            quantity: {{ item.quantity }}{% if item.imageUrl %},
+            imageUrl: "{{ item.imageUrl|e }}"{% endif %}
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+    
+    // Actualizar la variable global cart con los datos del servidor
+    if (typeof window !== 'undefined') {
+        window.cart = cartItems;
+        cart = cartItems; // También actualizar la variable local
+        localStorage.setItem('shoppingCart', JSON.stringify(cartItems));
+        console.log('Carrito sincronizado con datos del servidor:', cartItems);
+        
+        // Actualizar el contador
+        if (typeof updateCartCount === 'function') {
+            updateCartCount();
+        }
     }
 });
 </script>
+

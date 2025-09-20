@@ -1,0 +1,69 @@
+<div class="carrito-container">
+    <h2>Mi Carrito de Compras</h2>
+
+    <div id="cart-items" class="cart-items">
+        {% for item in cart_items %}
+        <div class="cart-item">
+            <div class="cart-item-image">
+                {% if item.imageUrl and item.imageUrl != '/static/default-product.png' %}
+                <img src="{{ item.imageUrl }}" alt="{{ item.name }}"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="default-image" style="display: none;">📦</div>
+                {% else %}
+                <div class="default-image">📦</div>
+                {% endif %}
+            </div>
+            <div class="cart-item-info">
+                <div class="cart-item-name">{{ item.name }}</div>
+                <div class="cart-item-details">${{ "%.2f"|format(item.price) }} c/u</div>
+            </div>
+            <div class="cart-item-controls">
+                <div class="quantity-controls">
+                    <button class="quantity-btn decrease-btn" data-product-id="{{ item.id }}">-</button>
+                    <span class="quantity-display" id="quantityDisplay_{{ item.id }}">{{ item.quantity }}</span>
+                    <button class="quantity-btn increase-btn" data-product-id="{{ item.id }}">+</button>
+                </div>
+                <button class="remove-btn" onclick="removeFromCart('{{ item.id }}')">Eliminar</button>
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
+
+    <div class="cart-total-section">
+        <div class="cart-total">
+            <strong>Total: $</strong><span id="cart-total">{{ "%.2f"|format(total) }}</span>
+        </div>
+        <form action="">
+            <button id="checkout-btn" class="checkout-btn">
+                Finalizar Compra
+            </button>
+        </form>
+    </div>
+
+    {% if error %}
+    <div class="error-message">{{ error }}</div>
+    {% endif %}
+
+    <div id="notification" class="notification"></div>
+</div>
+
+<script>
+       // Cargar el carrito cuando se muestre esta vista
+    document.addEventListener('DOMContentLoaded', function () {
+        if (typeof updateCartDisplay === 'function') {
+            updateCartDisplay();
+        }
+    });
+
+    // También ejecutar cuando HTMX carga esta vista
+    document.addEventListener('htmx:afterSwap', function (event) {
+        if (event.target.id === 'reemplazar') {
+            setTimeout(function () {
+                if (typeof updateCartDisplay === 'function') {
+                    updateCartDisplay();
+                }
+            }, 100);
+        }
+    });
+</script>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://unpkg.com/htmx.org@1.9.6"></script>
+    <script>
+        // Variable global que queremos enviar
+        window.miVariableGlobal = {
+            usuario: "Juan Pérez",
+            email: "juan@example.com",
+            timestamp: new Date().toISOString()
+        };
+        
+        // Función para actualizar la variable antes de enviar
+        function actualizarVariable() {
+            window.miVariableGlobal.timestamp = new Date().toISOString();
+        }
+    </script>
+</head>
+<body>
+    <h2>Enviar variable global con htmx</h2>
+    
+    <!-- Método 1: Directo con hx-vals -->
+    <button 
+        hx-post="/test" 
+        hx-vals='js:{datos: window.miVariableGlobal}'
+        hx-trigger="click"
+        onclick="actualizarVariable()">
+        Enviar con hx-vals
+    </button>
+    
+    <!-- Método 2: Con evento personalizado -->
+    <button 
+        hx-post="/test" 
+        hx-trigger="click"
+        onclick="event.preventDefault(); 
+                 htmx.ajax('POST', '/api/datos', { 
+                     values: { datos: window.miVariableGlobal },
+                     headers: {'Content-Type': 'application/json'}
+                 })">
+        Enviar con JavaScript
+    </button>
+    
+    <div id="resultado"></div>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<div class="carrito-container">
+    <h2>Mi Carrito de Compras</h2>
+
+    <div id="cart-items" class="cart-items">
+ 
+    </div>
+
+    <div class="cart-total-section">
+        <div class="cart-total">
+            <strong>Total: $</strong><span id="cart-total"></span>
+        </div>
+        <form action="">
+            <button id="checkout-btn" class="checkout-btn">
+                Finalizar Compra
+            </button>
+        </form>
+    </div>
+
+    {% if error %}
+    <div class="error-message">{{ error }}</div>
+    {% endif %}
+
+    <div id="notification" class="notification"></div>
+</div>
+
+<script>
+       // Cargar el carrito cuando se muestre esta vista
+    document.addEventListener('DOMContentLoaded', function () {
+        if (typeof updateCartDisplay === 'function') {
+            updateCartDisplay();
+        }
+    });
+
+
+</script>
