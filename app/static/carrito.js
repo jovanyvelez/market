@@ -227,20 +227,6 @@ function updateCartDisplay() {
     generateCheckoutForm();
 }
 
-// Finalizar compra
-function checkout() {
-    if (cart.length === 0) {
-        alert('Tu carrito está vacío');
-        return;
-    }
-
-    alert('¡Compra realizada con éxito! Total: $' +
-        cart.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2));
-
-    // Usar la función clearCart para limpiar
-    clearCart();
-}
-
 // Función específica para limpiar el carrito
 function clearCart() {
     // Vaciar carrito
@@ -274,17 +260,7 @@ function generateCheckoutForm() {
 
     // Crear el formulario con HTMX
     const form = document.createElement('form');
-    form.setAttribute('action', '/procesar-carrito');
-    form.setAttribute('method', 'post');
-    //form.setAttribute('hx-swap', 'innerHTML');
-    //form.setAttribute('hx-on:htmx:after-request', 'clearCart()');
-
-    // Crear input hidden con los datos del carrito
-    const cartInput = document.createElement('input');
-    cartInput.type = 'hidden';
-    cartInput.name = 'lista';
-    cartInput.value = JSON.stringify(cart);
-    form.appendChild(cartInput);
+    form.setAttribute('onsubmit', 'enviarCarrito(event)'); 
 
     // Crear el botón submit
     const submitBtn = document.createElement('button');
@@ -499,3 +475,74 @@ document.addEventListener('htmx:afterSettle', (event) => {
         updateProductsInterface();
     }, 50);
 });
+
+
+async function enviarCarrito(e) {
+    e.preventDefault(); // Prevenir el comportamiento por defecto del formulario
+    
+    try {
+        const response = await fetch('/prueba', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(cart) // Enviar el carrito completo como JSON
+        });
+        
+        // Verificar si la respuesta es exitosa (opcional, pero recomendado)
+        if (!response.ok) {
+            throw new Error(`Error en la respuesta: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Respuesta del servidor:', data);
+        
+        // Calcular datos para el resumen
+        const total_items = cart.length;
+        const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const items = [...cart]; // Copia de los items
+        
+        // Generar HTML del resumen
+        let itemsHTML = '';
+        items.forEach(item => {
+            const itemTotal = item.price * item.quantity;
+            itemsHTML += `
+                <div class='item'>
+                    ID: ${item.id}, ${item.name} - $${item.price.toFixed(2)} x ${item.quantity} = $${itemTotal.toFixed(2)}
+                </div>
+            `;
+        });
+        
+        const summaryHTML = `
+            <div class="result success">
+                <h3>✅ ¡Compra procesada exitosamente!</h3>
+                <p><strong>Total productos:</strong> ${total_items}</p>
+                <p><strong>Valor total:</strong> $${total.toFixed(2)}</p>
+                <div><strong>Productos comprados:</strong>
+                    ${itemsHTML}
+                </div>
+                <p style='margin-top: 15px; color: #28a745; font-weight: bold;'>
+                    ¡Gracias por tu compra! 🎉
+                </p>
+                <div style="margin-top: 20px;">
+                    <button onclick="volverAProductos()"
+                        style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                        Seguir Comprando
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        // Reemplazar el contenido del div "reemplazar" con el resumen
+        const reemplazarDiv = document.getElementById('reemplazar');
+        if (reemplazarDiv) {
+            reemplazarDiv.innerHTML = summaryHTML;
+        }
+        
+        // Limpiar el carrito después de mostrar el resumen
+        clearCart();
+        
+    } catch (error) {
+        console.error('Error enviando datos a /prueba:', error);
+    }
+}
