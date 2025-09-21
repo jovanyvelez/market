@@ -1,0 +1,302 @@
+<div class="checkout-container">
+    <h2>Datos de Compra</h2>
+    
+    <form id="checkout-form" hx-post="/api/procesar-checkout" hx-target="#reemplazar" hx-swap="innerHTML">
+        <!-- Datos del carrito (hidden) -->
+        <input type="hidden" id="cart-data" name="cart_data" value="">
+        
+        <div class="form-section">
+            <h3>📋 Datos Personales</h3>
+            <div class="form-row">
+                <input type="text" id="nombre" name="nombre" placeholder="Nombre completo" required>
+            </div>
+            <div class="form-row">
+                <input type="email" id="email" name="email" placeholder="Correo electrónico" required>
+            </div>
+            <div class="form-row">
+                <input type="tel" id="telefono" name="telefono" placeholder="Teléfono (ej: 300 123 4567)" required pattern="[0-9\s\-\(\)]{7,15}">
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <h3>📍 Dirección de Entrega (Medellín)</h3>
+            <div class="form-row">
+                <select id="zona" name="zona" required>
+                    <option value="">Seleccionar zona</option>
+                    <option value="norte">Norte</option>
+                    <option value="sur">Sur</option>
+                    <option value="oriente">Oriente</option>
+                    <option value="occidente">Occidente</option>
+                    <option value="centro">Centro</option>
+                    <option value="suroccidente">Suroccidente</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <input type="text" id="barrio" name="barrio" placeholder="Barrio" required>
+            </div>
+            <div class="form-row">
+                <select id="tipo_via" name="tipo_via" required>
+                    <option value="">Tipo de vía</option>
+                    <option value="calle">Calle</option>
+                    <option value="carrera">Carrera</option>
+                    <option value="diagonal">Diagonal</option>
+                    <option value="transversal">Transversal</option>
+                    <option value="circular">Circular</option>
+                </select>
+                <input type="text" id="numero_via" name="numero_via" placeholder="Número (ej: 50)" required pattern="[0-9A-Za-z\s]{1,10}">
+            </div>
+            <div class="form-row">
+                <input type="text" id="numero_casa" name="numero_casa" placeholder="# Casa/Apto (ej: 25-30)" required>
+            </div>
+            <div class="form-row">
+                <textarea id="referencias" name="referencias" placeholder="Referencias adicionales (edificio, color casa, puntos de referencia)" rows="3"></textarea>
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <h3>💰 Método de Pago</h3>
+            <div class="payment-options">
+                <label class="payment-option">
+                    <input type="radio" name="metodo_pago" value="contra_entrega" required>
+                    <div class="payment-card">
+                        <span class="payment-icon">🚚</span>
+                        <div>
+                            <strong>Pago Contra Entrega</strong>
+                            <p>Paga en efectivo cuando recibas tu pedido</p>
+                        </div>
+                    </div>
+                </label>
+                
+                <label class="payment-option">
+                    <input type="radio" name="metodo_pago" value="consignacion" required>
+                    <div class="payment-card">
+                        <span class="payment-icon">🏦</span>
+                        <div>
+                            <strong>Consignación</strong>
+                            <p>Transferencia bancaria o consignación</p>
+                        </div>
+                    </div>
+                </label>
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <h3>📦 Resumen del Pedido</h3>
+            <div id="order-summary">
+                <!-- Se llenará con JavaScript -->
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <button type="button" onclick="volverAProductos()" class="btn-secondary">
+                ← Seguir Comprando
+            </button>
+            <button type="submit" class="btn-primary" id="confirmar-pedido">
+                Confirmar Pedido
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+// Llenar el carrito en el campo hidden y mostrar resumen
+function fillCartData() {
+    if (typeof cart !== 'undefined' && cart.length > 0) {
+        // Llenar campo hidden con datos del carrito
+        const cartDataField = document.getElementById('cart-data');
+        if (cartDataField) {
+            cartDataField.value = JSON.stringify(cart);
+        }
+        
+        // Generar resumen del pedido
+        let total = 0;
+        let summaryHTML = '<div class="order-items">';
+        
+        cart.forEach(item => {
+            const itemTotal = item.price * item.quantity;
+            total += itemTotal;
+            summaryHTML += `
+                <div class="order-item">
+                    <span>${item.name}</span>
+                    <span>${item.quantity} x $${item.price.toFixed(2)} = $${itemTotal.toFixed(2)}</span>
+                </div>
+            `;
+        });
+        
+        summaryHTML += `</div>
+            <div class="order-total">
+                <strong>Total: $${total.toFixed(2)}</strong>
+            </div>`;
+        
+        const orderSummary = document.getElementById('order-summary');
+        if (orderSummary) {
+            orderSummary.innerHTML = summaryHTML;
+        }
+    }
+}
+
+// Ejecutar inmediatamente cuando se carga la plantilla
+fillCartData();
+
+// También ejecutar en DOMContentLoaded por si acaso
+document.addEventListener('DOMContentLoaded', fillCartData);
+
+// Ejecutar cuando HTMX termina de cargar contenido
+document.addEventListener('htmx:afterSettle', fillCartData);
+</script>
+
+<style>
+.checkout-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.form-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background: #fafafa;
+}
+
+.form-section h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.form-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.form-row input,
+.form-row select,
+.form-row textarea {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.form-row input:focus,
+.form-row select:focus,
+.form-row textarea:focus {
+    outline: none;
+    border-color: #28a745;
+    box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.2);
+}
+
+.payment-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.payment-option {
+    cursor: pointer;
+}
+
+.payment-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    background: white;
+    transition: all 0.2s;
+}
+
+.payment-option input[type="radio"]:checked + .payment-card {
+    border-color: #28a745;
+    background: #f8fff9;
+}
+
+.payment-card:hover {
+    border-color: #28a745;
+}
+
+.payment-icon {
+    font-size: 24px;
+}
+
+.payment-card strong {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.payment-card p {
+    margin: 0;
+    color: #666;
+    font-size: 13px;
+}
+
+.order-items {
+    margin-bottom: 15px;
+}
+
+.order-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.order-total {
+    text-align: right;
+    font-size: 18px;
+    color: #28a745;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: space-between;
+    margin-top: 30px;
+}
+
+.btn-primary, .btn-secondary {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-primary {
+    background: #28a745;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #218838;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+}
+
+@media (max-width: 768px) {
+    .checkout-container {
+        padding: 10px;
+    }
+    
+    .form-row {
+        flex-direction: column;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+}
+</style>

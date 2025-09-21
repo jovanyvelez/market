@@ -245,30 +245,19 @@ function generateCheckoutForm() {
     // Limpiar contenido existente
     checkoutContainer.innerHTML = '';
 
-    // Crear el formulario completo con todos los campos
-    checkoutContainer.innerHTML = `
-        <form id="checkout-form" onsubmit="enviarCarrito(event)">
-            <h3>Datos Personales</h3>
-            <input type="text" id="nombre" placeholder="Nombre completo" required>
-            <input type="email" id="email" placeholder="Correo electrónico" required>
-            <input type="tel" id="telefono" placeholder="Teléfono" required>
-            
-            <h3>Dirección de Entrega</h3>
-            <input type="text" id="calle" placeholder="Calle" required>
-            <input type="text" id="numero" placeholder="Número" required>
-            <input type="text" id="ciudad" placeholder="Ciudad" required>
-            <input type="text" id="codigo_postal" placeholder="Código Postal" required>
-            
-            <h3>Forma de Pago</h3>
-            <select id="forma_pago" required>
-                <option value="">Seleccionar...</option>
-                <option value="contra_entrega">Pago contra entrega</option>
-                <option value="consignacion">Consignación</option>
-            </select>
-            
-            <button type="submit" id="checkout-btn" class="checkout-btn" disabled="${cart.length === 0}">Finalizar Compra</button>
-        </form>
-    `;
+    // Crear el botón para mostrar el formulario de checkout
+    const submitBtn = document.createElement('button'); 
+    submitBtn.id = 'checkout-btn';
+    submitBtn.className = 'checkout-btn';
+    submitBtn.textContent = 'Finalizar Compra';
+    submitBtn.disabled = cart.length === 0;
+    submitBtn.setAttribute('hx-get', '/checkout-form');
+    submitBtn.setAttribute('hx-target', '#reemplazar');
+    submitBtn.setAttribute('hx-swap', 'innerHTML');
+    checkoutContainer.appendChild(submitBtn);
+
+    // Procesar el botón con HTMX para que funcione
+    htmx.process(submitBtn);
 }
 
 // Mostrar notificación

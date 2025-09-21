@@ -1,0 +1,101 @@
+<div class="result error">
+    <h2>❌ Error en el Pedido</h2>
+    
+    <div class="error-info">
+        <p style="font-size: 18px; color: #dc3545; font-weight: bold;">
+            Lo sentimos, hubo un problema procesando tu pedido.
+        </p>
+        
+        <div class="error-details">
+            <h3>🔍 Detalles del Error</h3>
+            <div class="error-message">
+                {{ error }}
+            </div>
+        </div>
+        
+        <div class="error-suggestions">
+            <h3>💡 Qué puedes hacer:</h3>
+            <ul>
+                <li>Verifica que todos los campos estén completados correctamente</li>
+                <li>Asegúrate de que tu conexión a internet esté funcionando</li>
+                <li>Intenta nuevamente en unos minutos</li>
+                <li>Si el problema persiste, contáctanos</li>
+            </ul>
+        </div>
+        
+        <div class="contact-info">
+            <p><strong>¿Necesitas ayuda?</strong></p>
+            <p>📞 Teléfono: (4) 123-4567</p>
+            <p>📱 WhatsApp: 300 123 4567</p>
+            <p>✉️ Email: info@tumarket.com</p>
+        </div>
+    </div>
+    
+    <div style="margin-top: 30px; text-align: center;">
+        <button onclick="history.back()" 
+                style="background: #dc3545; color: white; border: none; padding: 15px 30px; border-radius: 5px; cursor: pointer; font-size: 16px; margin-right: 15px;">
+            ← Volver e Intentar de Nuevo
+        </button>
+        <button onclick="volverAProductos()" 
+                style="background: #28a745; color: white; border: none; padding: 15px 30px; border-radius: 5px; cursor: pointer; font-size: 16px;">
+            🛒 Seguir Comprando
+        </button>
+    </div>
+</div>
+
+<style>
+.result.error {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 30px;
+    background: #fff5f5;
+    border: 2px solid #dc3545;
+    border-radius: 10px;
+}
+
+.error-info {
+    margin-top: 20px;
+}
+
+.error-details, .error-suggestions, .contact-info {
+    margin: 25px 0;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    border-left: 4px solid #dc3545;
+}
+
+.error-details h3, .error-suggestions h3, .contact-info h3 {
+    margin-top: 0;
+    color: #dc3545;
+}
+
+.error-message {
+    background: #f8d7da;
+    padding: 15px;
+    border-radius: 5px;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+    font-family: monospace;
+}
+
+.error-suggestions ul {
+    padding-left: 20px;
+}
+
+.error-suggestions li {
+    margin: 8px 0;
+}
+
+.contact-info {
+    background: #fff3cd;
+    border-left-color: #ffc107;
+}
+
+@media (max-width: 768px) {
+    .result.error {
+        margin: 10px;
+        padding: 20px;
+    }
+}
+</style>

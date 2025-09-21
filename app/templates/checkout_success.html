@@ -1,148 +1,220 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Compra Exitosa - Tienda</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <script src="/static/htmx.js"></script>
-    <script src="/static/carrito.js"></script>
-</head>
-<body>
-    <div id="header">
-        <!-- Barra de navegación -->
-        <nav class="navbar">
-            <div class="navbar-content">
-                <button class="back-btn" onclick="window.location.href='/'">
-                    ← Volver al Inicio
-                </button>
-                <h1 class="navbar-title">🛒 Mi Tienda</h1>
-                <div class="cart-container">
-                    <button class="cart-btn" 
-                            hx-get="/api/v2/categorias/carrito"
-                            hx-target="#main-content"
-                            hx-swap="innerHTML">
-                        🛒 Carrito
-                        <span id="cart-count" class="cart-count" style="display: none;">0</span>
-                    </button>
-                </div>
+<div class="result success">
+    <h2>✅ ¡Pedido Confirmado!</h2>
+    
+    <div class="success-info">
+        <p style="font-size: 18px; color: #28a745; font-weight: bold;">
+            ¡Gracias por tu compra, {{ cliente.nombre }}! 🎉
+        </p>
+        
+        <div class="order-details">
+            <h3>📦 Detalles del Pedido</h3>
+            <div class="detail-row">
+                <strong>Total de productos:</strong> {{ total_items }}
             </div>
-        </nav>
-    </div>
-
-    <main id="main-content">
-        <!-- Mensaje de éxito prominente -->
-        <div class="success-container">
-            <div class="success-card">
-                <div class="success-icon">✅</div>
-                <h2 class="success-title">¡Compra Realizada con Éxito!</h2>
-                
-                {% if success_message %}
-                <div class="success-message">
-                    {{ success_message }}
-                </div>
+            <div class="detail-row">
+                <strong>Valor total:</strong> ${{ "%.2f"|format(total) }}
+            </div>
+            <div class="detail-row">
+                <strong>Método de pago:</strong> 
+                {% if metodo_pago == 'contra_entrega' %}
+                    🚚 Pago contra entrega
+                {% else %}
+                    🏦 Consignación
                 {% endif %}
-                
-                <div class="purchase-summary">
-                    {% if order_total %}
-                    <div class="summary-item">
-                        <strong>Total Pagado: ${{ "%.2f"|format(order_total) }}</strong>
-                    </div>
-                    {% endif %}
-                    
-                    {% if items_purchased %}
-                    <div class="summary-item">
-                        Productos Comprados: {{ items_purchased }}
-                    </div>
-                    {% endif %}
-                    
-                    <div class="summary-item">
-                        <small>Fecha: {{ now.strftime("%d/%m/%Y %H:%M") if now else "" }}</small>
-                    </div>
-                </div>
-                
-                <div class="success-actions">
-                    <button class="btn-primary" onclick="window.location.href='/'">
-                        🏠 Continuar Comprando
-                    </button>
-                    <button class="btn-secondary" 
-                            hx-get="/api/v2/categorias/carrito"
-                            hx-target="#main-content"
-                            hx-swap="innerHTML">
-                        🛒 Ver Carrito
-                    </button>
-                </div>
             </div>
         </div>
-    </main>
+        
+        <div class="customer-info">
+            <h3>👤 Información del Cliente</h3>
+            <div class="detail-row">
+                <strong>Nombre:</strong> {{ cliente.nombre }}
+            </div>
+            <div class="detail-row">
+                <strong>Email:</strong> {{ cliente.email }}
+            </div>
+            <div class="detail-row">
+                <strong>Teléfono:</strong> {{ cliente.telefono }}
+            </div>
+        </div>
+        
+        <div class="delivery-info">
+            <h3>📍 Dirección de Entrega</h3>
+            <div class="address-card">
+                <p><strong>{{ direccion.tipo_via|title }} {{ direccion.numero_via }} #{{ direccion.numero_casa }}</strong></p>
+                <p>{{ direccion.barrio }}, {{ direccion.zona|title }}</p>
+                {% if direccion.referencias %}
+                <p><em>Referencias: {{ direccion.referencias }}</em></p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="products-info">
+            <h3>🛍️ Productos Comprados</h3>
+            {% for item in items %}
+            <div class="product-item">
+                <span class="product-name">{{ item.name }}</span>
+                <span class="product-details">
+                    ${{ "%.2f"|format(item.price) }} x {{ item.quantity }} = 
+                    ${{ "%.2f"|format(item.price * item.quantity) }}
+                </span>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% if metodo_pago == 'consignacion' %}
+        <div class="payment-info">
+            <h3>💳 Información de Pago</h3>
+            <div class="bank-info">
+                <p><strong>Para completar tu compra, realiza la consignación a:</strong></p>
+                <p>� <strong>Banco:</strong> Bancolombia</p>
+                <p>💳 <strong>Cuenta:</strong> 123-456789-01</p>
+                <p>👤 <strong>A nombre de:</strong> Tu Market SAS</p>
+                <p>💰 <strong>Valor:</strong> ${{ "%.2f"|format(total) }}</p>
+                <p><em>Una vez realices el pago, envía el comprobante al WhatsApp 300 123 4567</em></p>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="next-steps">
+            <h3>📋 Próximos Pasos</h3>
+            <ol>
+                {% if metodo_pago == 'consignacion' %}
+                <li>Realiza la consignación con los datos proporcionados</li>
+                <li>Envía el comprobante por WhatsApp</li>
+                <li>Confirmaremos tu pago y prepararemos tu pedido</li>
+                {% else %}
+                <li>Prepararemos tu pedido</li>
+                <li>Te contactaremos para coordinar la entrega</li>
+                <li>Paga en efectivo cuando recibas tu pedido</li>
+                {% endif %}
+                <li>¡Disfruta tus productos!</li>
+            </ol>
+        </div>
+        
+        <div class="contact-info">
+            <p><strong>¿Tienes dudas?</strong></p>
+            <p>📞 Teléfono: (4) 123-4567</p>
+            <p>📱 WhatsApp: 300 123 4567</p>
+            <p>✉️ Email: info@tumarket.com</p>
+        </div>
+    </div>
+    
+    <div style="margin-top: 30px; text-align: center;">
+        <button onclick="volverAProductos()" 
+                style="background: #28a745; color: white; border: none; padding: 15px 30px; border-radius: 5px; cursor: pointer; font-size: 16px;">
+            🛒 Seguir Comprando
+        </button>
+    </div>
+</div>
 
-    <!-- Script para limpiar localStorage después del éxito -->
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('=== PÁGINA DE ÉXITO CARGADA ===');
-        
-        // Limpiar localStorage automáticamente
-        console.log('localStorage antes de limpiar:', {
-            cart: localStorage.getItem('cart'),
-            shoppingCart: localStorage.getItem('shoppingCart'),
-            cartCount: localStorage.getItem('cartCount')
-        });
-        
-        // Limpiar carrito del localStorage
-        if (typeof clearCart === 'function') {
-            console.log('Usando función clearCart()');
-            clearCart();
-        } else {
-            console.log('clearCart() no disponible, limpiando manualmente');
-            localStorage.removeItem('cart');
-            localStorage.removeItem('shoppingCart');
-            localStorage.removeItem('cartCount');
-            
-            // Actualizar contador en la navbar
-            const cartCount = document.getElementById('cart-count');
-            if (cartCount) {
-                cartCount.textContent = '0';
-                cartCount.style.display = 'none';
-            }
-            
-            // También limpiar la variable global cart si existe
-            if (typeof window.cart !== 'undefined') {
-                window.cart = [];
-            }
+<script>
+// Limpiar carrito después de mostrar el éxito
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof clearCart === 'function') {
+        clearCart();
+    } else {
+        // Limpiar manualmente si clearCart no está disponible
+        localStorage.removeItem('shoppingCart');
+        if (typeof window.cart !== 'undefined') {
+            window.cart = [];
         }
-        
-        console.log('localStorage después de limpiar:', {
-            cart: localStorage.getItem('cart'),
-            shoppingCart: localStorage.getItem('shoppingCart'),
-            cartCount: localStorage.getItem('cartCount')
-        });
-        
-        console.log('=== CARRITO LIMPIADO EXITOSAMENTE ===');
-        
-        // Opcional: mostrar notificación temporal
-        setTimeout(() => {
-            const notification = document.createElement('div');
-            notification.className = 'temp-notification';
-            notification.innerHTML = '🎉 ¡Tu carrito se ha limpiado automáticamente!';
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: #28a745;
-                color: white;
-                padding: 15px;
-                border-radius: 8px;
-                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-                z-index: 1000;
-                font-weight: bold;
-            `;
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
-        }, 500);
-    });
-    </script>
-</body>
-</html>
+    }
+});
+</script>
+
+<style>
+.result.success {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 30px;
+    background: #f8fff9;
+    border: 2px solid #28a745;
+    border-radius: 10px;
+}
+
+.success-info {
+    margin-top: 20px;
+}
+
+.order-details, .customer-info, .delivery-info, .products-info, .payment-info, .next-steps, .contact-info {
+    margin: 25px 0;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    border-left: 4px solid #28a745;
+}
+
+.order-details h3, .customer-info h3, .delivery-info h3, .products-info h3, .payment-info h3, .next-steps h3, .contact-info h3 {
+    margin-top: 0;
+    color: #28a745;
+}
+
+.detail-row {
+    margin: 10px 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+.address-card {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    border: 1px solid #dee2e6;
+}
+
+.product-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.product-item:last-child {
+    border-bottom: none;
+}
+
+.product-name {
+    font-weight: 500;
+}
+
+.product-details {
+    color: #666;
+}
+
+.bank-info {
+    background: #e7f3ff;
+    padding: 15px;
+    border-radius: 5px;
+    border-left: 4px solid #007bff;
+}
+
+.next-steps ol {
+    padding-left: 20px;
+}
+
+.next-steps li {
+    margin: 8px 0;
+}
+
+.contact-info {
+    background: #fff3cd;
+    border-left-color: #ffc107;
+}
+
+@media (max-width: 768px) {
+    .result.success {
+        margin: 10px;
+        padding: 20px;
+    }
+    
+    .detail-row {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .product-item {
+        flex-direction: column;
+        gap: 5px;
+    }
+}
+</style>
