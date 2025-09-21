@@ -31,19 +31,6 @@ function updateProductsInterface() {
     });
 }
 
-// Función para sincronizar un producto específico con el carrito
-function syncProductWithCart(productId) {
-    const cartItem = cart.find(item => item.id === productId);
-    if (cartItem) {
-        // Si está en el carrito, mostrar selector y sincronizar cantidad
-        showQuantitySelector(productId);
-        updateQuantityDisplay(productId);
-    } else {
-        // Si no está en el carrito, mostrar botón comprar
-        hideQuantitySelector(productId);
-    }
-}
-
 
 // Guardar el carrito en localStorage
 function saveCart() {
@@ -161,7 +148,7 @@ function updateQuantityDisplay(productId) {
 function removeFromCart(id) {
     cart = cart.filter(item => item.id !== id);
     saveCart();
-    updateCartDisplay();  // RESTAURAR: Esta función SÍ funcionaba
+    updateCartDisplay();
     updateCartCount();
 
     // Actualizar la interfaz del producto en la página
@@ -267,7 +254,6 @@ function generateCheckoutForm() {
     submitBtn.type = 'submit';
     submitBtn.id = 'checkout-btn';
     submitBtn.className = 'checkout-btn';
-    submitBtn.onclick = 'clearCart()';
     submitBtn.textContent = 'Finalizar Compra';
     submitBtn.disabled = cart.length === 0;
     form.appendChild(submitBtn);
@@ -297,7 +283,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inicializar todas las cantidades en 1 para productos que no están en el carrito
     initializeProductQuantities();
     
-    // RESTAURAR: updateCartDisplay() porque SÍ funcionaba
     updateCartDisplay();
 });
 
@@ -305,7 +290,6 @@ document.addEventListener('DOMContentLoaded', () => {
 function mostrarCarrito() {
     // Si ya estamos en la vista del carrito, no hacer nada
     if (document.querySelector('.carrito-container')) {
-        console.log('Ya estamos en la vista del carrito');
         return;
     }
     
@@ -349,8 +333,6 @@ function mostrarCarrito() {
     
     // Configurar event listeners para los botones dinámicos
     setupCartEventListeners();
-    
-    console.log('Vista del carrito cargada en el div "reemplazar"');
 }
 
 // Función para volver a la vista de productos
@@ -389,31 +371,21 @@ function setupCartEventListeners() {
     document.addEventListener('click', function(event) {
         const target = event.target;
         
-        // Manejar clicks en botones de cantidad (usando data-product-id)
-        if (target.classList.contains('increase-btn')) {
-            const productId = parseInt(target.dataset.productId);
-            increaseQuantity(productId);
-            event.preventDefault();
-        }
-        
-        if (target.classList.contains('decrease-btn')) {
-            const productId = parseInt(target.dataset.productId);
-            decreaseQuantity(productId);
-            event.preventDefault();
-        }
-        
         // Manejar clicks en el icono del carrito (solo si no estamos ya en la vista del carrito)
         if (target.closest('#cart-icon') && !document.querySelector('.carrito-container')) {
             mostrarCarrito();
             event.preventDefault();
         }
     });
-    
-    console.log('Event listeners del carrito configurados');
 }
 
 // Event delegation para botones de agregar al carrito (en scope global)
-document.addEventListener('click', (e) => {
+const eventType = 'ontouchstart' in window ? 'touchstart' : 'click';
+document.addEventListener(eventType, (e) => {
+    if (eventType === 'touchstart') {
+        e.preventDefault(); // Prevenir el click por defecto en dispositivos táctiles para evitar eventos múltiples
+    }
+    
     // Evitar procesar clicks en el cart-icon
     if (e.target.closest('#cart-icon') || e.target.id === 'cart-icon') {
         return;
@@ -462,7 +434,6 @@ function initializeProductQuantities() {
 document.addEventListener('htmx:afterSwap', function (event) {
     if (event.target.id === 'reemplazar') {
         setTimeout(function () {
-            // RESTAURAR: updateCartDisplay() porque funcionaba
             if (typeof updateCartDisplay === 'function') {
                 updateCartDisplay();
             }
