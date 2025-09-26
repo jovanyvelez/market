@@ -49,34 +49,6 @@
                 {% endif %}
             </span>
         </div>
-
-        {% if cart_items and cart_items|length > 0 %}
-        <form action="/checkout" method="post">
-            {% for item in cart_items %}
-            <!-- Campos ocultos para enviar datos del carrito -->
-            <input type="hidden" name="items[{{ loop.index0 }}][id]" value="{{ item.id }}">
-            <input type="hidden" name="items[{{ loop.index0 }}][name]" value="{{ item.name }}">
-            <input type="hidden" name="items[{{ loop.index0 }}][price]" value="{{ item.price }}">
-            <input type="hidden" name="items[{{ loop.index0 }}][quantity]" value="{{ item.quantity }}">
-            {% if item.imageUrl %}
-            <input type="hidden" name="items[{{ loop.index0 }}][imageUrl]" value="{{ item.imageUrl }}">
-            {% endif %}
-            {% endfor %}
-
-            <button id="checkout-btn" class="checkout-btn" type="submit
-                    hx-post="/carrito" 
-                    hx-vals='js:{datos: window.cart}'
-                    hx-trigger="click"
-                    hx-swap="#reemplazar"
-                    onclick="clearCart()">
-                Finalizar Compra
-            </button>
-        </form>
-        {% else %}
-        <button id="checkout-btn" class="checkout-btn" disabled>
-            Finalizar Compra
-        </button>
-        {% endif %}
     </div>
 
     {% if error %}

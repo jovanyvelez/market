@@ -13,6 +13,7 @@ function loadCart() {
     }
 }
 
+
 // Actualizar la interfaz de todos los productos basado en el carrito
 function updateProductsInterface() {
     if (cart.length === 0) {
@@ -31,6 +32,27 @@ function updateProductsInterface() {
     });
 }
 
+
+// Agregar un pequeño delay para evitar taps durante scroll rápido
+let lastScrollTime = 0;
+const SCROLL_COOLDOWN = 300; // ms
+
+function handleBuyButton(event) {
+    // Prevenir taps durante/justo después del scroll
+    console.log('Tiempo desde último scroll:', Date.now() - lastScrollTime);
+    if (Date.now() - lastScrollTime < SCROLL_COOLDOWN) {
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+    }
+    
+}
+
+
+// Detectar scroll
+window.addEventListener('scroll', () => {
+    lastScrollTime = Date.now();
+});
 
 // Guardar el carrito en localStorage
 function saveCart() {
@@ -79,6 +101,7 @@ function addToCart(id, name, price, imageUrl = null) {
 function showQuantitySelector(productId) {
     const addButton = document.getElementById(`addButton_${productId}`);
     const quantitySelector = document.getElementById(`quantitySelector_${productId}`);
+    addButton.addEventListener('touchstart', handleBuyButton, { passive: false });
 
     if (addButton && quantitySelector) {
         addButton.classList.add('hidden');
