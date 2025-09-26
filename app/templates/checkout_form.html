@@ -20,7 +20,7 @@
         
         <div class="form-section">
             <h3>📍 Dirección de Entrega (Medellín)</h3>
-            <div class="form-row">
+            <!--div class="form-row">
                 <select id="zona" name="zona" required>
                     <option value="">Seleccionar zona</option>
                     <option value="norte">Norte</option>
@@ -30,10 +30,10 @@
                     <option value="centro">Centro</option>
                     <option value="suroccidente">Suroccidente</option>
                 </select>
-            </div>
-            <div class="form-row">
+            </div-->
+            <!--div class="form-row">
                 <input type="text" id="barrio" name="barrio" placeholder="Barrio" required>
-            </div>
+            </div-->
             <div class="form-row">
                 <select id="tipo_via" name="tipo_via" required>
                     <option value="">Tipo de vía</option>
@@ -88,7 +88,7 @@
         </div>
         
         <div class="form-actions">
-            <button type="button" onclick="volverAProductos()" class="btn-secondary">
+            <button type="button" hx-get="/api/v2/categorias/raiz_activas" hx-swap="innerHTML" hx-target="#reemplazar" hx-trigger="click" class="btn-secondary">
                 ← Seguir Comprando
             </button>
             <button type="submit" class="btn-primary" id="confirmar-pedido">

@@ -1,45 +1,431 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <script src="https://unpkg.com/htmx.org@1.9.6"></script>
-    <script>
-        // Variable global que queremos enviar
-        window.miVariableGlobal = {
-            usuario: "Juan Pérez",
-            email: "juan@example.com",
-            timestamp: new Date().toISOString()
-        };
-        
-        // Función para actualizar la variable antes de enviar
-        function actualizarVariable() {
-            window.miVariableGlobal.timestamp = new Date().toISOString();
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Direcciones - Colombia</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
-    </script>
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .form-title {
+            text-align: center;
+            color: #333;
+            font-size: 2.2em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .form-subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .address-builder {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 2px solid #e9ecef;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: end;
+        }
+
+        .form-group {
+            flex: 1;
+        }
+
+        .form-group.small {
+            flex: 0 0 80px;
+        }
+
+        .form-group.medium {
+            flex: 0 0 120px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95em;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .address-preview {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .preview-label {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .address-result {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #333;
+            font-family: 'Courier New', monospace;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .empty-address {
+            color: #999;
+            font-style: italic;
+            font-weight: normal;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .copy-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+            font-size: 1em;
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .copy-btn:active {
+            transform: translateY(0);
+        }
+
+        .examples {
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .examples h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+
+        .examples ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .examples li {
+            color: #666;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+
+        .examples li::before {
+            content: "• ";
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+                margin: 10px;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .form-group.small,
+            .form-group.medium {
+                flex: 1;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h2>Enviar variable global con htmx</h2>
-    
-    <!-- Método 1: Directo con hx-vals -->
-    <button 
-        hx-post="/test" 
-        hx-vals='js:{datos: window.miVariableGlobal}'
-        hx-trigger="click"
-        onclick="actualizarVariable()">
-        Enviar con hx-vals
-    </button>
-    
-    <!-- Método 2: Con evento personalizado -->
-    <button 
-        hx-post="/test" 
-        hx-trigger="click"
-        onclick="event.preventDefault(); 
-                 htmx.ajax('POST', '/api/datos', { 
-                     values: { datos: window.miVariableGlobal },
-                     headers: {'Content-Type': 'application/json'}
-                 })">
-        Enviar con JavaScript
-    </button>
-    
-    <div id="resultado"></div>
+    <div class="container">
+        <h1 class="form-title">🏠 Dirección Colombiana</h1>
+        <p class="form-subtitle">Constructor inteligente de direcciones</p>
+
+        <form class="address-builder">
+            <div class="form-row">
+                <div class="form-group medium">
+                    <label for="tipo-via">Tipo de Vía</label>
+                    <select id="tipo-via">
+                        <option value="">Seleccionar</option>
+                        <option value="Calle">Calle</option>
+                        <option value="Carrera">Carrera</option>
+                        <option value="Diagonal">Diagonal</option>
+                        <option value="Transversal">Transversal</option>
+                        <option value="Avenida">Avenida</option>
+                        <option value="Avenida Calle">Avenida Calle</option>
+                        <option value="Avenida Carrera">Avenida Carrera</option>
+                        <option value="Circular">Circular</option>
+                        <option value="Circunvalar">Circunvalar</option>
+                        <option value="Autopista">Autopista</option>
+                        <option value="Variante">Variante</option>
+                        <option value="Vía">Vía</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="numero-principal">Número Principal</label>
+                    <input type="text" id="numero-principal" placeholder="Ej: 26, 12A, 45B" maxlength="10">
+                </div>
+                <div class="form-group small">
+                    <label for="letra-principal">Letra</label>
+                    <input type="text" id="letra-principal" placeholder="A" maxlength="1" style="text-transform: uppercase;">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group medium">
+                    <label for="complemento-principal">Complemento</label>
+                    <select id="complemento-principal">
+                        <option value="">Ninguno</option>
+                        <option value="Sur">Sur</option>
+                        <option value="Norte">Norte</option>
+                        <option value="Este">Este</option>
+                        <option value="Oeste">Oeste</option>
+                        <option value="Bis">Bis</option>
+                        <option value="Bis Sur">Bis Sur</option>
+                        <option value="Bis Norte">Bis Norte</option>
+                        <option value="Bis Este">Bis Este</option>
+                        <option value="Bis Oeste">Bis Oeste</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="numero-secundario">Número Secundario</label>
+                    <input type="text" id="numero-secundario" placeholder="Ej: 45, 32A, 18" maxlength="10">
+                </div>
+                <div class="form-group small">
+                    <label for="letra-secundaria">Letra</label>
+                    <input type="text" id="letra-secundaria" placeholder="B" maxlength="1" style="text-transform: uppercase;">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group medium">
+                    <label for="complemento-secundario">Complemento 2</label>
+                    <select id="complemento-secundario">
+                        <option value="">Ninguno</option>
+                        <option value="Sur">Sur</option>
+                        <option value="Norte">Norte</option>
+                        <option value="Este">Este</option>
+                        <option value="Oeste">Oeste</option>
+                        <option value="Bis">Bis</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="numero-terciario">Número Final</label>
+                    <input type="text" id="numero-terciario" placeholder="Ej: 12, 08, 125" maxlength="10">
+                </div>
+                <div class="form-group">
+                    <label for="complemento-adicional">Complemento Final</label>
+                    <input type="text" id="complemento-adicional" placeholder="Ej: Interior 2, Apt 301" maxlength="20">
+                </div>
+            </div>
+        </form>
+
+        <div class="address-preview">
+            <div class="preview-label">Dirección Generada</div>
+            <div class="address-result" id="address-result">
+                <span class="empty-address">Completa los campos para generar la dirección</span>
+            </div>
+            <button class="copy-btn" onclick="copyAddress()" id="copy-btn" style="display: none;">
+                📋 Copiar Dirección
+            </button>
+        </div>
+
+        <div class="examples">
+            <h4>📋 Ejemplos de direcciones colombianas:</h4>
+            <ul>
+                <li>Calle 26 # 45 - 18</li>
+                <li>Carrera 15 # 32A - 45 Sur</li>
+                <li>Avenida Carrera 7 # 123 - 45 Interior 2</li>
+                <li>Diagonal 45B Bis # 12 - 34 Apt 501</li>
+                <li>Transversal 12A # 34 - 56 Norte</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function updateAddress() {
+            const tipoVia = document.getElementById('tipo-via').value;
+            const numeroPrincipal = document.getElementById('numero-principal').value.trim();
+            const letraPrincipal = document.getElementById('letra-principal').value.trim().toUpperCase();
+            const complementoPrincipal = document.getElementById('complemento-principal').value;
+            const numeroSecundario = document.getElementById('numero-secundario').value.trim();
+            const letraSecundaria = document.getElementById('letra-secundaria').value.trim().toUpperCase();
+            const complementoSecundario = document.getElementById('complemento-secundario').value;
+            const numeroTerciario = document.getElementById('numero-terciario').value.trim();
+            const complementoAdicional = document.getElementById('complemento-adicional').value.trim();
+
+            let address = '';
+            
+            // Construir primera parte
+            if (tipoVia && numeroPrincipal) {
+                address = tipoVia + ' ' + numeroPrincipal;
+                
+                if (letraPrincipal) {
+                    address += letraPrincipal;
+                }
+                
+                if (complementoPrincipal) {
+                    address += ' ' + complementoPrincipal;
+                }
+            }
+
+            // Añadir número secundario si existe
+            if (address && numeroSecundario) {
+                address += ' # ' + numeroSecundario;
+                
+                if (letraSecundaria) {
+                    address += letraSecundaria;
+                }
+                
+                if (complementoSecundario) {
+                    address += ' ' + complementoSecundario;
+                }
+            }
+
+            // Añadir número terciario si existe
+            if (address && numeroTerciario) {
+                address += ' - ' + numeroTerciario;
+            }
+
+            // Añadir complemento adicional si existe
+            if (address && complementoAdicional) {
+                address += ' ' + complementoAdicional;
+            }
+
+            const resultElement = document.getElementById('address-result');
+            const copyBtn = document.getElementById('copy-btn');
+            
+            if (address.trim()) {
+                resultElement.innerHTML = address;
+                copyBtn.style.display = 'inline-block';
+            } else {
+                resultElement.innerHTML = '<span class="empty-address">Completa los campos para generar la dirección</span>';
+                copyBtn.style.display = 'none';
+            }
+        }
+
+        function copyAddress() {
+            const addressText = document.getElementById('address-result').textContent;
+            if (addressText && !addressText.includes('Completa los campos')) {
+                navigator.clipboard.writeText(addressText).then(() => {
+                    const btn = document.getElementById('copy-btn');
+                    const originalText = btn.textContent;
+                    btn.textContent = '✅ ¡Copiado!';
+                    btn.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+                    
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+                    }, 2000);
+                });
+            }
+        }
+
+        // Auto-mayúsculas para letras
+        document.getElementById('letra-principal').addEventListener('input', function(e) {
+            e.target.value = e.target.value.toUpperCase();
+            updateAddress();
+        });
+
+        document.getElementById('letra-secundaria').addEventListener('input', function(e) {
+            e.target.value = e.target.value.toUpperCase();
+            updateAddress();
+        });
+
+        // Event listeners para actualizar en tiempo real
+        document.querySelectorAll('select, input').forEach(element => {
+            element.addEventListener('input', updateAddress);
+            element.addEventListener('change', updateAddress);
+        });
+
+        // Validación de números
+        document.querySelectorAll('input[id*="numero"]').forEach(input => {
+            input.addEventListener('input', function(e) {
+                // Permitir números y letras para casos como 12A, 45B, etc.
+                const value = e.target.value;
+                if (!/^[0-9A-Za-z]*$/.test(value)) {
+                    e.target.value = value.replace(/[^0-9A-Za-z]/g, '');
+                }
+                updateAddress();
+            });
+        });
+    </script>
 </body>
-</html>
+</html>s
