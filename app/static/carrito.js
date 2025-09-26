@@ -49,9 +49,12 @@ function updateCartCount() {
 // Función para añadir al carrito
 function addToCart(id, name, price, imageUrl = null) {
     const existingItem = cart.find(item => item.id === id);
+    const isFirstItem = cart.length === 0; // Verificar si el carrito está vacío antes de agregar
 
     if (existingItem) {
         existingItem.quantity += 1;
+        // Mostrar notificación normal para incremento de cantidad
+        showNotification(`${name} cantidad actualizada`);
     } else {
         cart.push({
             id,
@@ -60,6 +63,13 @@ function addToCart(id, name, price, imageUrl = null) {
             quantity: 1,
             imageUrl: imageUrl && imageUrl.trim() !== '' ? imageUrl : null
         });
+        
+        // Mostrar notificación especial si es el primer producto
+        if (isFirstItem) {
+            showNotification('Primer producto añadido al carrito');
+        } else {
+            showNotification(`${name} añadido al carrito`);
+        }
     }
 
     saveCart();
@@ -70,9 +80,6 @@ function addToCart(id, name, price, imageUrl = null) {
 
     // Sincronizar la cantidad mostrada con la del carrito
     updateQuantityDisplay(id);
-
-    // Mostrar notificación
-    showNotification(`${name} añadido al carrito`);
 }
 
 // Mostrar el selector de cantidad para un producto específico
@@ -262,15 +269,22 @@ function generateCheckoutForm() {
 
 // Mostrar notificación
 function showNotification(message) {
-    const notification = document.getElementById('notification');
-    if (notification) {
-        notification.textContent = message;
-        notification.classList.add('show');
-
-        setTimeout(() => {
-            notification.classList.remove('show');
-        }, 2000);
+    let notification = document.getElementById('notification');
+    
+    // Si no existe el elemento notification, crearlo dinámicamente
+    if (!notification) {
+        notification = document.createElement('div');
+        notification.id = 'notification';
+        notification.className = 'notification';
+        document.body.appendChild(notification);
     }
+    
+    notification.textContent = message;
+    notification.classList.add('show');
+
+    setTimeout(() => {
+        notification.classList.remove('show');
+    }, 2000);
 }
 
 
