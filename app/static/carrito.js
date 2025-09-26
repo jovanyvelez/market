@@ -13,7 +13,6 @@ function loadCart() {
     }
 }
 
-
 // Actualizar la interfaz de todos los productos basado en el carrito
 function updateProductsInterface() {
     if (cart.length === 0) {
@@ -32,27 +31,6 @@ function updateProductsInterface() {
     });
 }
 
-
-// Agregar un pequeño delay para evitar taps durante scroll rápido
-let lastScrollTime = 0;
-const SCROLL_COOLDOWN = 300; // ms
-
-function handleBuyButton(event) {
-    // Prevenir taps durante/justo después del scroll
-    console.log('Tiempo desde último scroll:', Date.now() - lastScrollTime);
-    if (Date.now() - lastScrollTime < SCROLL_COOLDOWN) {
-        event.preventDefault();
-        event.stopPropagation();
-        return;
-    }
-    
-}
-
-
-// Detectar scroll
-window.addEventListener('scroll', () => {
-    lastScrollTime = Date.now();
-});
 
 // Guardar el carrito en localStorage
 function saveCart() {
@@ -101,7 +79,6 @@ function addToCart(id, name, price, imageUrl = null) {
 function showQuantitySelector(productId) {
     const addButton = document.getElementById(`addButton_${productId}`);
     const quantitySelector = document.getElementById(`quantitySelector_${productId}`);
-    addButton.addEventListener('touchstart', handleBuyButton, { passive: false });
 
     if (addButton && quantitySelector) {
         addButton.classList.add('hidden');
@@ -401,41 +378,91 @@ function setupCartEventListeners() {
     });
 }
 
-// Event delegation para botones de agregar al carrito (en scope global)
-const eventType = 'ontouchstart' in window ? 'touchstart' : 'click';
-document.addEventListener(eventType, (e) => {
-    if (eventType === 'touchstart') {
-        e.preventDefault(); // Prevenir el click por defecto en dispositivos táctiles para evitar eventos múltiples
-    }
-    
+// Variables para controlar el long press
+let pressTimer;
+const longPressDelay = 500; // 500 ms para long press
+
+// Detectar si es dispositivo touchscreen
+const isTouchDevice = 'ontouchstart' in window;
+
+// Función para manejar la acción de los botones
+function handleButtonAction(target) {
     // Evitar procesar clicks en el cart-icon
-    if (e.target.closest('#cart-icon') || e.target.id === 'cart-icon') {
+    if (target.closest('#cart-icon') || target.id === 'cart-icon') {
         return;
     }
     
-    if (e.target.classList.contains('add-button')) {
-        const productId = parseInt(e.target.dataset.productId);
-        const productName = e.target.dataset.productName;
-        const productPrice = parseFloat(e.target.dataset.productPrice);
-        const productImageUrl = e.target.dataset.productImageUrl || null;
+    if (target.classList.contains('add-button')) {
+        const productId = parseInt(target.dataset.productId);
+        const productName = target.dataset.productName;
+        const productPrice = parseFloat(target.dataset.productPrice);
+        const productImageUrl = target.dataset.productImageUrl || null;
 
         addToCart(productId, productName, productPrice, productImageUrl);
     }
 
-    if (e.target.classList.contains('increase-btn')) {
-        const productId = parseInt(e.target.dataset.productId);
+    if (target.classList.contains('increase-btn')) {
+        const productId = parseInt(target.dataset.productId);
         increaseQuantity(productId);
     }
 
-    if (e.target.classList.contains('decrease-btn')) {
-        const productId = parseInt(e.target.dataset.productId);
+    if (target.classList.contains('decrease-btn')) {
+        const productId = parseInt(target.dataset.productId);
         decreaseQuantity(productId);
     }
     
-    // Manejar clicks en botones de eliminar
-    if (e.target.classList.contains('remove-btn')) {
-        const productId = parseInt(e.target.dataset.productId);
+    // Manejar clicks en botones de eliminar (estos no necesitan long press)
+    if (target.classList.contains('remove-btn')) {
+        const productId = parseInt(target.dataset.productId);
         removeFromCart(productId);
+    }
+}
+
+// Event delegation para dispositivos táctiles - Long press requerido
+if (isTouchDevice) {
+    document.addEventListener('touchstart', (e) => {
+        const target = e.target;
+        
+        // Solo aplicar long press a botones específicos del carrito
+        if (target.classList.contains('add-button') || 
+            target.classList.contains('increase-btn') || 
+            target.classList.contains('decrease-btn')) {
+            
+            e.preventDefault(); // Prevenir scroll accidental
+            
+            // Iniciar timer para long press
+            pressTimer = setTimeout(() => {
+                handleButtonAction(target);
+            }, longPressDelay);
+        }
+        // Los botones remove-btn mantienen comportamiento inmediato
+        else if (target.classList.contains('remove-btn')) {
+            handleButtonAction(target);
+        }
+    });
+
+    document.addEventListener('touchend', (e) => {
+        // Cancelar el timer si se suelta antes del long press
+        clearTimeout(pressTimer);
+    });
+
+    document.addEventListener('touchmove', (e) => {
+        // Cancelar el timer si hay movimiento (scroll)
+        clearTimeout(pressTimer);
+    });
+}
+
+// Event delegation para clicks normales (desktop o fallback)
+document.addEventListener('click', (e) => {
+    const target = e.target;
+    
+    // En dispositivos no táctiles, comportamiento normal
+    if (!isTouchDevice) {
+        handleButtonAction(target);
+    }
+    // En dispositivos táctiles, solo manejar botones que no requieren long press
+    else if (target.classList.contains('remove-btn')) {
+        handleButtonAction(target);
     }
 });
 
