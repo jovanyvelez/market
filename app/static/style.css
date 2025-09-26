@@ -110,13 +110,10 @@ html, body {
     gap: 8px;
 }
 
-/* Efectos back-button solo en desktop */
-@media (hover: hover) and (pointer: fine) {
-    .back-button:hover {
-        background: #c82333;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
-    }
+.back-button:hover {
+    background: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
 }
 
 .product-detail-content {
@@ -291,39 +288,36 @@ html, body {
     min-width: 140px;
 }
 
-/* Efectos de botones solo en dispositivos desktop */
-@media (hover: hover) and (pointer: fine) {
-    .add-button:hover {
-        background: linear-gradient(135deg, #c82333, #a71e2a);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
-    }
+.add-button:hover {
+    background: linear-gradient(135deg, #c82333, #a71e2a);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+}
 
-    .add-button:active {
-        transform: translateY(0);
-        box-shadow: 0 3px 10px rgba(220, 53, 69, 0.3);
-    }
+.add-button:active {
+    transform: translateY(0);
+    box-shadow: 0 3px 10px rgba(220, 53, 69, 0.3);
+}
 
-    /* Efecto de brillo en hover */
-    .add-button::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(
-            90deg,
-            transparent,
-            rgba(255, 255, 255, 0.2),
-            transparent
-        );
-        transition: left 0.5s;
-    }
+/* Efecto de brillo en hover */
+.add-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+    );
+    transition: left 0.5s;
+}
 
-    .add-button:hover::before {
-        left: 100%;
-    }
+.add-button:hover::before {
+    left: 100%;
 }
 
 /* Estilos específicos para vista de detalle */
@@ -350,18 +344,15 @@ html, body {
     gap: 8px;
 }
 
-/* Efectos product-detail add-button solo en desktop */
-@media (hover: hover) and (pointer: fine) {
-    .product-detail-container .add-button:hover {
-        background: linear-gradient(135deg, #c82333, #a71e2a);
-        transform: translateY(-3px);
-        box-shadow: 0 8px 30px rgba(220, 53, 69, 0.4);
-    }
+.product-detail-container .add-button:hover {
+    background: linear-gradient(135deg, #c82333, #a71e2a);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(220, 53, 69, 0.4);
+}
 
-    .product-detail-container .add-button:active {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
-    }
+.product-detail-container .add-button:active {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
 }
 
 /* Icono del carrito en el botón (opcional) */
@@ -402,18 +393,15 @@ html, body {
     box-shadow: 0 3px 10px rgba(220, 53, 69, 0.3);
 }
 
-/* Efectos product-detail quantity-btn solo en desktop */
-@media (hover: hover) and (pointer: fine) {
-    .product-detail-container .quantity-btn:hover {
-        background: linear-gradient(135deg, #c82333, #a71e2a);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
-    }
+.product-detail-container .quantity-btn:hover {
+    background: linear-gradient(135deg, #c82333, #a71e2a);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+}
 
-    .product-detail-container .quantity-btn:active {
-        transform: translateY(0);
-        box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
-    }
+.product-detail-container .quantity-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
 }
 
 .product-detail-container .quantity-display {
@@ -976,11 +964,8 @@ h3 {
     transition: background-color 0.2s ease;
 }
 
-/* Efectos quantity-btn solo en desktop */
-@media (hover: hover) and (pointer: fine) {
-    .quantity-btn:hover {
-        background-color: #c82333;
-    }
+.quantity-btn:hover {
+    background-color: #c82333;
 }
 
 .quantity-display {
