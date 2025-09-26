@@ -1,6 +1,7 @@
 
 
 body {
+    /* Evita el rebote en scroll en móviles */
     overscroll-behavior: contain;
 }
 /* Estilos del header */
