@@ -380,7 +380,7 @@ function setupCartEventListeners() {
 
 // Variables para controlar el long press
 let pressTimer;
-const longPressDelay = 100; // 100 ms para long press
+const longPressDelay = 65; // 65 ms para long press
 
 // Detectar si es dispositivo touchscreen
 const isTouchDevice = 'ontouchstart' in window;
