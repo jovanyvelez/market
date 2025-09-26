@@ -1,8 +1,33 @@
 
 
+html {
+    /* Deshabilita el pull-to-refresh en móviles */
+    overscroll-behavior-y: none;
+}
+
 body {
     /* Evita el rebote en scroll en móviles */
     overscroll-behavior: contain;
+    /* Deshabilita el pull-to-refresh completamente */
+    overscroll-behavior-y: none;
+    /* Previene el comportamiento de refresh en iOS Safari */
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Deshabilitar pull-to-refresh específicamente */
+html, body {
+    /* Previene overscroll en todas las direcciones */
+    overscroll-behavior: none;
+}
+
+/* Para navegadores webkit (Safari, Chrome móvil) */
+@media screen and (max-width: 768px) {
+    html, body {
+        /* Deshabilita completamente el overscroll en móviles */
+        overscroll-behavior: none;
+        /* Previene el refresh gesture */
+        touch-action: pan-x pan-y;
+    }
 }
 /* Estilos del header */
 #header {
