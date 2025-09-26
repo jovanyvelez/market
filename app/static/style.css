@@ -1,4 +1,8 @@
 
+
+body {
+    overscroll-behavior: contain;
+}
 /* Estilos del header */
 #header {
     position: relative;
@@ -678,12 +682,12 @@
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
         transform: translateY(-6px);
     }
-}
-
-/* Retroalimentación táctil inmediata */
-.card:active {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+    
+    /* Retroalimentación táctil solo en desktop */
+    .card:active {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+    }
 }
 
 img {
