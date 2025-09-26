@@ -19,7 +19,7 @@
         </div>
         
         <div class="form-section">
-            <h3>📍 Dirección de Entrega (Medellín)</h3>
+            <h3> Dirección de Entrega (Medellín)</h3>
             <!--div class="form-row">
                 <select id="zona" name="zona" required>
                     <option value="">Seleccionar zona</option>
@@ -91,7 +91,7 @@
             <button type="button" hx-get="/api/v2/categorias/raiz_activas" hx-swap="innerHTML" hx-target="#reemplazar" hx-trigger="click" class="btn-secondary">
                 ← Seguir Comprando
             </button>
-            <button type="submit" class="btn-primary" id="confirmar-pedido">
+            <button type="submit" class="btn-primary" id="confirmar-pedido" onclick="clearCart()">
                 Confirmar Pedido
             </button>
         </div>
