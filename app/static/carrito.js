@@ -432,15 +432,13 @@ function handleButtonAction(target) {
     }
 }
 
-// Event delegation para dispositivos táctiles - Long press requerido
+// Event delegation para dispositivos táctiles - Long press solo para add-button
 if (isTouchDevice) {
     document.addEventListener('touchstart', (e) => {
         const target = e.target;
         
-        // Solo aplicar long press a botones específicos del carrito
-        if (target.classList.contains('add-button') || 
-            target.classList.contains('increase-btn') || 
-            target.classList.contains('decrease-btn')) {
+        // Long press solo para add-button
+        if (target.classList.contains('add-button')) {
             
             e.preventDefault(); // Prevenir scroll accidental
             
@@ -449,19 +447,21 @@ if (isTouchDevice) {
                 handleButtonAction(target);
             }, longPressDelay);
         }
-        // Los botones remove-btn mantienen comportamiento inmediato
-        else if (target.classList.contains('remove-btn')) {
+        // Los botones increase-btn, decrease-btn y remove-btn mantienen comportamiento inmediato
+        else if (target.classList.contains('increase-btn') || 
+                 target.classList.contains('decrease-btn') ||
+                 target.classList.contains('remove-btn')) {
             handleButtonAction(target);
         }
     });
 
     document.addEventListener('touchend', (e) => {
-        // Cancelar el timer si se suelta antes del long press
+        // Cancelar el timer si se suelta antes del long press (solo afecta add-button)
         clearTimeout(pressTimer);
     });
 
     document.addEventListener('touchmove', (e) => {
-        // Cancelar el timer si hay movimiento (scroll)
+        // Cancelar el timer si hay movimiento (scroll) (solo afecta add-button)
         clearTimeout(pressTimer);
     });
 }
@@ -470,14 +470,12 @@ if (isTouchDevice) {
 document.addEventListener('click', (e) => {
     const target = e.target;
     
-    // En dispositivos no táctiles, comportamiento normal
+    // En dispositivos no táctiles, comportamiento normal para todos los botones
     if (!isTouchDevice) {
         handleButtonAction(target);
     }
-    // En dispositivos táctiles, solo manejar botones que no requieren long press
-    else if (target.classList.contains('remove-btn')) {
-        handleButtonAction(target);
-    }
+    // En dispositivos táctiles, no manejar aquí porque ya se manejan en touchstart
+    // (evita eventos duplicados)
 });
 
 // Función para inicializar las cantidades de productos
