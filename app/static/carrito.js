@@ -438,7 +438,9 @@ if (isTouchDevice) {
         const target = e.target;
         
         // Solo aplicar long press a botones específicos del carrito
-        if ( target.classList.contains('add-button') ) {
+        if (target.classList.contains('add-button') || 
+            target.classList.contains('increase-btn') || 
+            target.classList.contains('decrease-btn')) {
             
             e.preventDefault(); // Prevenir scroll accidental
             
