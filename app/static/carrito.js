@@ -438,7 +438,7 @@ if (isTouchDevice) {
         const target = e.target;
         
         // Long press solo para add-button
-        if (target.classList.contains('add-button')) {
+        if (target.classList.contains('add-button') || target.classList.contains('remove-btn')) {
             
             e.preventDefault(); // Prevenir scroll accidental
             
@@ -447,10 +447,9 @@ if (isTouchDevice) {
                 handleButtonAction(target);
             }, longPressDelay);
         }
-        // Los botones increase-btn, decrease-btn y remove-btn mantienen comportamiento inmediato
+        // Los botones increase-btn y decrease-btn mantienen comportamiento inmediato
         else if (target.classList.contains('increase-btn') || 
-                 target.classList.contains('decrease-btn') ||
-                 target.classList.contains('remove-btn')) {
+                 target.classList.contains('decrease-btn') ) {
             handleButtonAction(target);
         }
     });
