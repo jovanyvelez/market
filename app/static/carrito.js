@@ -577,3 +577,81 @@ async function enviarCarrito(e) {
         console.error('Error enviando datos a /prueba:', error);
     }
 }
+
+// ===================================================================
+// FUNCIONES PARA EL ASIDE RESPONSIVE DE SUBCATEGORÍAS
+// ===================================================================
+
+// Función para mostrar/ocultar el aside de subcategorías
+function toggleSubcategories() {
+    const aside = document.getElementById('subcategoriesAside');
+    const overlay = document.querySelector('.subcategories-overlay');
+    
+    if (aside && overlay) {
+        const isActive = aside.classList.contains('active');
+        
+        if (isActive) {
+            // Cerrar
+            aside.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = ''; // Restaurar scroll
+        } else {
+            // Abrir
+            aside.classList.add('active');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevenir scroll del fondo
+        }
+    }
+}
+
+// Función para cerrar el aside después de seleccionar una subcategoría
+function closeSubcategories() {
+    const aside = document.getElementById('subcategoriesAside');
+    const overlay = document.querySelector('.subcategories-overlay');
+    
+    if (aside && overlay) {
+        aside.classList.remove('active');
+        overlay.classList.remove('active');
+        document.body.style.overflow = ''; // Restaurar scroll
+    }
+}
+
+// Cerrar el aside si se presiona la tecla Escape
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeSubcategories();
+    }
+});
+
+// Función para detectar y manejar el scroll en subcategorías (desktop)
+function handleSubcategoriesScroll() {
+    if (window.innerWidth > 768) { // Solo en desktop
+        const categoriasList = document.querySelector('.subcategories-aside .categorias');
+        const aside = document.querySelector('.subcategories-aside');
+        
+        if (categoriasList && aside) {
+            // Verificar si hay contenido que requiere scroll
+            const hasScroll = categoriasList.scrollHeight > categoriasList.clientHeight;
+            
+            if (hasScroll) {
+                aside.classList.add('has-scroll');
+            } else {
+                aside.classList.remove('has-scroll');
+            }
+        }
+    }
+}
+
+// Ejecutar cuando se carga el contenido y cuando cambia el tamaño de ventana
+document.addEventListener('htmx:afterSwap', function(event) {
+    if (event.target.id === 'reemplazar') {
+        setTimeout(handleSubcategoriesScroll, 100);
+    }
+});
+
+window.addEventListener('resize', handleSubcategoriesScroll);
+
+// También ejecutar cuando se carga la página
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(handleSubcategoriesScroll, 100);
+});

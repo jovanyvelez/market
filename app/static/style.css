@@ -1253,3 +1253,356 @@ h3 {
         font-size: 13px;
     }
 }
+
+/* ===================================================================== */
+/* ESTILOS PARA ASIDE RESPONSIVE DE SUBCATEGORÍAS */
+/* ===================================================================== */
+
+/* Botón toggle para mostrar subcategorías (solo visible en móviles) */
+.subcategories-toggle {
+    display: none; /* Oculto por defecto en desktop */
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 12px 20px;
+    margin: 20px auto;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+    position: sticky;
+    bottom: 20px;
+    z-index: 100;
+    width: fit-content;
+}
+
+.subcategories-toggle:hover {
+    background: linear-gradient(135deg, #c82333, #a71e2a);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+}
+
+.toggle-icon {
+    margin-right: 8px;
+    font-size: 18px;
+}
+
+.toggle-text {
+    margin-right: 8px;
+}
+
+.toggle-count {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 2px 8px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* Aside para subcategorías */
+.subcategories-aside {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: 300px;
+    background: white;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    padding: 20px;
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+}
+
+.aside-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #dc3545;
+}
+
+.aside-header h3 {
+    color: #dc3545;
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.close-aside {
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.close-aside:hover {
+    background: #c82333;
+    transform: scale(1.1);
+}
+
+/* Estilos para botones de subcategoría */
+.subcategory-btn {
+    width: 100%;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    font-weight: 500;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    text-align: left;
+}
+
+.subcategory-btn:hover {
+    background: #e9ecef;
+    border-color: #dc3545;
+    color: #dc3545;
+    transform: translateX(5px);
+    box-shadow: 0 2px 10px rgba(220, 53, 69, 0.2);
+}
+
+.subcategory-icon {
+    margin-right: 12px;
+    font-size: 18px;
+    color: #dc3545;
+}
+
+/* Overlay para cerrar en móviles */
+.subcategories-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+/* Estados activos */
+.subcategories-aside.active {
+    transform: translateX(0);
+}
+
+.subcategories-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Desktop: mostrar subcategorías como lista horizontal integrada */
+@media (min-width: 769px) {
+    .subcategories-toggle {
+        display: none; /* Oculto en desktop */
+    }
+    
+    .subcategories-aside {
+        position: static; /* Integrado en el flujo normal */
+        top: auto;
+        right: auto;
+        height: auto;
+        max-height: 60vh; /* Limitar altura máxima */
+        width: 100%;
+        margin: 30px 0 20px 0;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border-radius: 15px;
+        transform: none;
+        float: none;
+        clear: none;
+        padding: 25px;
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        overflow: hidden; /* Controlar overflow del contenedor */
+    }
+    
+    .subcategories-aside .categorias {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        max-height: calc(60vh - 120px); /* Altura máxima del contenido */
+        overflow-y: auto; /* Scroll vertical si es necesario */
+        overflow-x: hidden;
+        padding-right: 10px; /* Espacio para scrollbar */
+    }
+    
+    /* Estilos personalizados para el scrollbar en desktop */
+    .subcategories-aside .categorias::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    .subcategories-aside .categorias::-webkit-scrollbar-track {
+        background: #e9ecef;
+        border-radius: 4px;
+    }
+    
+    .subcategories-aside .categorias::-webkit-scrollbar-thumb {
+        background: #dc3545;
+        border-radius: 4px;
+        transition: background 0.3s ease;
+    }
+    
+    .subcategories-aside .categorias::-webkit-scrollbar-thumb:hover {
+        background: #c82333;
+    }
+    
+    .subcategories-overlay {
+        display: none; /* No necesario en desktop */
+    }
+    
+    .close-aside {
+        display: none; /* No necesario en desktop */
+    }
+    
+    .aside-header {
+        justify-content: center;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #dc3545;
+        padding-bottom: 15px;
+        flex-shrink: 0; /* No se encoge para dar espacio al scroll */
+    }
+    
+    .aside-header h3 {
+        font-size: 22px;
+        color: #dc3545;
+        font-weight: 700;
+        margin: 0;
+    }
+    
+    .subcategories-aside .categorias li {
+        margin: 0;
+    }
+    
+    .subcategories-aside .subcategory-btn {
+        width: 100%;
+        background: white;
+        border: 2px solid #dee2e6;
+        border-radius: 12px;
+        padding: 18px 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 16px;
+        font-weight: 600;
+        color: #495057;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        min-height: 60px; /* Altura mínima consistente */
+    }
+    
+    .subcategories-aside .subcategory-btn:hover {
+        background: #dc3545;
+        border-color: #dc3545;
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+    }
+    
+    .subcategories-aside .subcategory-btn:active {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 10px rgba(220, 53, 69, 0.2);
+    }
+    
+    .subcategories-aside .subcategory-icon {
+        margin-right: 10px;
+        font-size: 18px;
+        transition: all 0.3s ease;
+    }
+    
+    .subcategories-aside .subcategory-btn:hover .subcategory-icon {
+        color: white;
+        transform: scale(1.1);
+    }
+    
+    /* Indicador visual de más contenido disponible */
+    .subcategories-aside:after {
+        content: '';
+        position: absolute;
+        bottom: 25px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40px;
+        height: 4px;
+        background: linear-gradient(90deg, transparent, #dc3545, transparent);
+        border-radius: 2px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    /* Mostrar indicador cuando hay scroll disponible */
+    .subcategories-aside.has-scroll:after {
+        opacity: 1;
+    }
+}
+
+/* Móviles: aside oculto por defecto, slide desde la derecha */
+@media (max-width: 768px) {
+    .subcategories-toggle {
+        display: flex; /* Visible en móviles */
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .subcategories-aside {
+        transform: translateX(100%); /* Oculto por defecto */
+        width: 85%;
+        max-width: 300px;
+        right: 0;
+    }
+    
+    .subcategory-btn {
+        padding: 18px;
+        font-size: 17px;
+        border-radius: 12px;
+    }
+    
+    .subcategory-btn:hover {
+        transform: translateX(8px);
+    }
+}
+
+/* Pantallas muy pequeñas */
+@media (max-width: 480px) {
+    .subcategories-aside {
+        width: 90%;
+        padding: 15px;
+    }
+    
+    .subcategory-btn {
+        padding: 16px;
+        font-size: 16px;
+    }
+    
+    .subcategories-toggle {
+        padding: 10px 16px;
+        font-size: 14px;
+        margin: 15px auto;
+    }
+    
+    .toggle-icon {
+        font-size: 16px;
+    }
+}

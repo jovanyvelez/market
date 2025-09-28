@@ -54,16 +54,34 @@
 
 
     {% if categorias_hijas %}
-    <ul class="categorias">
-        {% for categoria in categorias_hijas %}
-            <li>
-                <form hx-post="/api/v2/categorias/{{ categoria["id"]}}/productos" hx-target="#reemplazar">
-                    <input type="hidden" name="padre" value="{{ categoria_padre_id }}">
-                    <button type="submit">
-                        {{ categoria["nombre"] }}
-                    </button>
-                </form>
-            </li>
-        {% endfor %}
-    </ul>
+    <!-- Botón para mostrar subcategorías (solo visible en móviles) -->
+    <button class="subcategories-toggle" onclick="toggleSubcategories()">
+        <span class="toggle-icon">📂</span>
+        <span class="toggle-text">Ver Subcategorías</span>
+        <span class="toggle-count">({{ categorias_hijas|length }})</span>
+    </button>
+
+    <!-- Overlay para cerrar en móviles -->
+    <div class="subcategories-overlay" onclick="toggleSubcategories()"></div>
+    
+    <!-- Aside con subcategorías -->
+    <aside class="subcategories-aside" id="subcategoriesAside">
+        <div class="aside-header">
+            <h3>Subcategorías</h3>
+            <button class="close-aside" onclick="toggleSubcategories()">&times;</button>
+        </div>
+        <ul class="categorias">
+            {% for categoria in categorias_hijas %}
+                <li>
+                    <form hx-post="/api/v2/categorias/{{ categoria["id"]}}/productos" hx-target="#reemplazar" onsubmit="closeSubcategories()">
+                        <input type="hidden" name="padre" value="{{ categoria_padre_id }}">
+                        <button type="submit" class="subcategory-btn">
+                            <span class="subcategory-icon">📁</span>
+                            {{ categoria["nombre"] }}
+                        </button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    </aside>
     {% endif %}
