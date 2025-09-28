@@ -1,9 +1,9 @@
 """
 Endpoints API para Categorías
 """
-
+import json
 from typing import List, Annotated
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, status, Request, Form
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlmodel import Session, text
@@ -11,6 +11,10 @@ from sqlmodel import Session, text
 from app.core.database import get_session
 from app.crud import categoria as categoria_crud
 from app.models import CategoriaCreate, CategoriaRead, CategoriaUpdate
+from pydantic import BaseModel
+
+class CategoriaProductosRequest(BaseModel):
+    padre: int
 
 templates = Jinja2Templates(directory="app/templates")
 
@@ -249,6 +253,30 @@ def desactivar_categoria(categoria_id: int, db: Session = Depends(get_session)):
     return categoria
 
 
+def get_data_descendants_products(categoria_id: int, db: Session, solo_activos: bool = True) -> dict:
+    # Verificar que la categoría existe
+    categoria = categoria_crud.get(db, id=categoria_id)
+    if not categoria:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Categoría no encontrada"
+        )
+    
+    # Obtener productos de la categoría y sus descendientes
+    productos = categoria_crud.get_productos_descendientes(
+        db, 
+        categoria_id=categoria_id, 
+        solo_activos=solo_activos
+    )
+
+    hijas = categoria_crud.get_categorias_hijas(
+        db,
+        categoria_id=categoria_id,
+        solo_activos=solo_activos
+    )
+
+    return {"productos": productos, "categorias_hijas": hijas}
+
 @router.get("/{categoria_id}/productos", response_class=HTMLResponse)
 def obtener_productos_descendientes(
     request: Request,
@@ -268,33 +296,56 @@ def obtener_productos_descendientes(
     Returns:
         Lista de productos de la categoría padre y todas sus subcategorías descendientes activas
     """
-    # Verificar que la categoría existe
-    categoria = categoria_crud.get(db, id=categoria_id)
-    if not categoria:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Categoría no encontrada"
-        )
-    
+
+
     # Obtener productos de la categoría y sus descendientes
-    productos = categoria_crud.get_productos_descendientes(
-        db, 
-        categoria_id=categoria_id, 
-        solo_activos=solo_activos
-    )
+    data = get_data_descendants_products(categoria_id=categoria_id, db=db, solo_activos=solo_activos)
+
+    productos = data["productos"]
+    
     
     # Obtener categorías hijas directas
-    categorias_hijas_data = categoria_crud.get_categorias_hijas(
-        db,
-        categoria_id=categoria_id,
-        solo_activos=solo_activos
-    )
+    categorias_hijas_data =  data["categorias_hijas"]
     
     # Convertir a objetos del schema
     categorias_hijas = [CategoriaHijaSchema(**categoria) for categoria in categorias_hijas_data]
 
-    return templates.TemplateResponse(name="_productos.html", request=request, context={"categoria_padre_id": categoria_id, "productos": productos, "total_productos": len(productos), "categorias_hijas": categorias_hijas})
+    return templates.TemplateResponse(name="_productos.html", request=request, context={"padre": None, "categoria_padre_id": categoria_id, "productos": productos, "total_productos": len(productos), "categorias_hijas": categorias_hijas})
 
+@router.post("/{categoria_id}/productos", response_class=HTMLResponse)
+def obtener_productos_descendientes_post(
+    db: Annotated[Session, Depends(get_session)],
+    request: Request,
+    categoria_id: int, 
+    padre: int = Form(...),
+    solo_activos: bool = True
+):
+    """
+    Obtener todos los productos de una categoría específica y sus categorías descendientes.
+    Por defecto solo incluye categorías y productos activos.
+    
+    Args:
+        categoria_id: ID de la categoría padre
+        solo_activos: Si True, solo devuelve categorías y productos activos (default: True)
+        db: Sesión de base de datos
+        
+    Returns:
+        Lista de productos de la categoría padre y todas sus subcategorías descendientes activas
+    """
+ 
+    # Obtener productos de la categoría y sus descendientes
+    data = get_data_descendants_products(categoria_id=categoria_id, db=db, solo_activos=solo_activos)
+
+    productos = data["productos"]
+    
+    
+    # Obtener categorías hijas directas
+    categorias_hijas_data =  data["categorias_hijas"]
+    
+    # Convertir a objetos del schema
+    categorias_hijas = [CategoriaHijaSchema(**categoria) for categoria in categorias_hijas_data]
+
+    return templates.TemplateResponse(name="_productos.html", request=request, context={"padre": padre,"categoria_padre_id": categoria_id, "productos": productos, "total_productos": len(productos), "categorias_hijas": categorias_hijas})
 
 @router.get("/productos/{producto_id}/detalle", response_class=HTMLResponse)
 def obtener_detalle_producto(

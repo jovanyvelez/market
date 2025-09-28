@@ -1,64 +1,69 @@
 {% if termino_busqueda %}
-    {% if total_productos > 0 %}
-        <h3>Resultados para "{{termino_busqueda}}" ({{total_productos}} productos encontrados)</h3>
-    {% else %}
-        <div class="no-results">
-            <h3>No se encontraron productos para "{{termino_busqueda}}"</h3>
-            <p>Intenta con otros términos de búsqueda</p>
-        </div>
-    {% endif %}
+{% if total_productos > 0 %}
+<h3>Resultados para "{{termino_busqueda}}" ({{total_productos}} productos encontrados)</h3>
+{% else %}
+<div class="no-results">
+    <h3>No se encontraron productos para "{{termino_busqueda}}"</h3>
+    <p>Intenta con otros términos de búsqueda</p>
+</div>
+{% endif %}
 {% endif %}
 
 {% if total_productos > 0 %}
-<div class="container_productos">
-    {% for producto in productos %}
-    <div class="card">
-        <img src="{{producto['imagen_url']}}" 
-             alt="{{producto['nombre']}}"
-             class="product-image-clickable"
-             hx-get="/api/v2/categorias/productos/{{producto['id']}}/detalle"
-             hx-target="#reemplazar"
-             hx-swap="innerHTML">
-        <span class="precio">$ {{producto["precio"]}}</span>
-        <span class="nombre">{{producto["nombre"]}}</span>
-        <div class="quantity-control">
-            <button 
-                id="addButton_{{producto['id']}}" 
-                class="add-button" 
-                data-product-id="{{producto['id']}}"
-                data-product-name="{{producto['nombre']}}"
-                data-product-price="{{producto['precio']}}"
-                data-product-image-url="{{producto['imagen_url']}}">
-                Comprar
-            </button>
-            
-            <div id="quantitySelector_{{producto['id']}}" class="quantity-selector hidden">
-                <button 
-                    id="decreaseBtn_{{producto['id']}}" 
-                    class="quantity-btn decrease-btn" 
-                    data-product-id="{{producto['id']}}">
-                    -
-                </button>
-                <span id="quantityDisplay_{{producto['id']}}" class="quantity-display">1</span>
-                <button 
-                    id="increaseBtn_{{producto['id']}}" 
-                    class="quantity-btn increase-btn" 
-                    data-product-id="{{producto['id']}}">
-                    +
-                </button>
-            </div>
-        </div>
-    </div>
-    {% endfor %}
-</div>
+
+{% if padre %}
+    <button class="back-btn"
+        hx-get="/api/v2/categorias/{{ padre }}/productos" hx-disabled-elt="this"
+        hx-target="#reemplazar">
+        &larr; Atras
+    </button>
 {% endif %}
 
-{% if categorias_hijas %}
-<ul>
-    {% for categoria in categorias_hijas %}
-    <li>
-        <a href="/api/v2/categorias/{{categoria['id']}}/productos">{{categoria["nombre"]}}</a>
-    </li>
-    {% endfor %}
-</ul>
-{% endif %}
+    <div class="container_productos">
+        {% for producto in productos %}
+        <div class="card">
+            <img src="{{producto['imagen_url']}}" alt="{{producto['nombre']}}" class="product-image-clickable"
+                hx-get="/api/v2/categorias/productos/{{producto['id']}}/detalle" hx-target="#reemplazar"
+                hx-swap="innerHTML">
+            <span class="precio">$ {{producto["precio"]}}</span>
+            <span class="nombre">{{producto["nombre"]}}</span>
+            <div class="quantity-control">
+                <button id="addButton_{{producto['id']}}" class="add-button" data-product-id="{{producto['id']}}"
+                    data-product-name="{{producto['nombre']}}" data-product-price="{{producto['precio']}}"
+                    data-product-image-url="{{producto['imagen_url']}}">
+                    Comprar
+                </button>
+
+                <div id="quantitySelector_{{producto['id']}}" class="quantity-selector hidden">
+                    <button id="decreaseBtn_{{producto['id']}}" class="quantity-btn decrease-btn"
+                        data-product-id="{{producto['id']}}">
+                        -
+                    </button>
+                    <span id="quantityDisplay_{{producto['id']}}" class="quantity-display">1</span>
+                    <button id="increaseBtn_{{producto['id']}}" class="quantity-btn increase-btn"
+                        data-product-id="{{producto['id']}}">
+                        +
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+
+
+    {% if categorias_hijas %}
+    <ul class="categorias">
+        {% for categoria in categorias_hijas %}
+            <li>
+                <form hx-post="/api/v2/categorias/{{ categoria["id"]}}/productos" hx-target="#reemplazar">
+                    <input type="hidden" name="padre" value="{{ categoria_padre_id }}">
+                    <button type="submit">
+                        {{ categoria["nombre"] }}
+                    </button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+    {% endif %}

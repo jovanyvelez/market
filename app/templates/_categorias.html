@@ -3,7 +3,8 @@
     {% for categoria in categorias %}
         <li>
             <button hx-get="/api/v2/categorias/{{ categoria["id"]}}/productos" hx-swap="innerHTML"
-                hx-target="#reemplazar">{{ categoria["nombre"] }}</button>
+            hx-disabled-elt="this"   
+            hx-target="#reemplazar">{{ categoria["nombre"] }} <img src="/static/loading.svg" width="32px" class="htmx-indicator"></button>
         </li>
     {% endfor %}
 </ul>

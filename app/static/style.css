@@ -726,6 +726,7 @@ img {
 .card span {
     font-size: 0.8rem;
     font-weight: bold;
+    margin: 0 auto;
 }
 
 .precio {

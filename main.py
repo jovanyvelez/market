@@ -121,7 +121,3 @@ async def procesar_checkout(request: Request):
             name="checkout_error.html",
             context={"error": str(e)}
         )
-
-@app.get("/saludo")
-async def saludo(request: Request):
-    return templates.TemplateResponse("saludo.html", {"request": request})
