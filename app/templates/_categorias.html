@@ -1,10 +1,24 @@
-<h1>Categorias</h1>
-<ul class="categorias">
+<div class="categories-header">
+    <h1>Explora Nuestras Categorías</h1>
+    <p>Encuentra exactamente lo que necesitas</p>
+</div>
+
+<div class="categories-list">
     {% for categoria in categorias %}
-        <li>
-            <button hx-get="/api/v2/categorias/{{ categoria["id"]}}/productos" hx-swap="innerHTML"
-            hx-disabled-elt="this"   
-            hx-target="#reemplazar">{{ categoria["nombre"] }} <img src="/static/loading.svg" width="32px" class="htmx-indicator"></button>
-        </li>
+        <div class="category-list-item">
+            <div class="list-item-content">
+                <span class="list-icon">🏷️</span>
+                <span class="list-title">{{ categoria["nombre"] }}</span>
+            </div>
+            <button class="list-btn" 
+                    hx-get="/api/v2/categorias/{{ categoria["id"]}}/productos" 
+                    hx-swap="innerHTML"
+                    hx-disabled-elt="this"   
+                    hx-target="#reemplazar"
+                    hx-indicator=".htmx-indicator">
+                <span>Explorar</span>
+                <img src="/static/loading.svg" width="16px" class="htmx-indicator">
+            </button>
+        </div>
     {% endfor %}
-</ul>
+</div>

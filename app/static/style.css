@@ -781,6 +781,222 @@ input[type="text"]:not(.search-wrapper input) {
     width: 100%;
 }
 
+/* ===================================================================== */
+/* ESTILOS PARA CATEGORÍAS RAÍZ MODO LISTA */
+/* ===================================================================== */
+
+.categories-header {
+    text-align: center;
+    margin: 20px 0 30px 0;
+    padding: 20px;
+}
+
+.categories-header h1 {
+    color: #333;
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin: 0 0 10px 0;
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.categories-header p {
+    color: #666;
+    font-size: 1rem;
+    margin: 0;
+    font-weight: 400;
+}
+
+/* Vista Lista Única */
+.categories-list {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.category-list-item {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 18px 24px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.category-list-item:hover {
+    border-color: #dc3545;
+    box-shadow: 0 4px 20px rgba(220, 53, 69, 0.12);
+    transform: translateX(8px);
+    background: #fdfcfc;
+}
+
+.list-item-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+}
+
+.list-icon {
+    font-size: 1.8rem;
+    transition: transform 0.3s ease;
+}
+
+.category-list-item:hover .list-icon {
+    transform: scale(1.1);
+}
+
+.list-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+    transition: color 0.3s ease;
+}
+
+.category-list-item:hover .list-title {
+    color: #dc3545;
+}
+
+.list-btn {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.2);
+    min-width: 100px;
+    justify-content: center;
+}
+
+.list-btn:hover {
+    background: linear-gradient(135deg, #c82333, #a71e2a);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+}
+
+.list-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.2);
+}
+
+/* Indicadores de carga */
+.list-btn .htmx-indicator {
+    display: none !important;
+}
+
+.list-btn.htmx-request .htmx-indicator {
+    display: inline-block !important;
+}
+
+.list-btn.htmx-request span {
+    opacity: 0.7;
+}
+
+.list-btn.htmx-request {
+    cursor: not-allowed;
+    opacity: 0.8;
+    background: linear-gradient(135deg, #6c757d, #5a6268);
+}
+
+.list-btn.htmx-request:hover {
+    transform: none;
+    background: linear-gradient(135deg, #6c757d, #5a6268);
+}
+
+/* Responsive para modo lista */
+@media (max-width: 768px) {
+    .categories-header {
+        margin: 15px 0 25px 0;
+        padding: 15px;
+    }
+    
+    .categories-header h1 {
+        font-size: 1.9rem;
+    }
+    
+    .categories-list {
+        padding: 0 15px;
+    }
+    
+    .category-list-item {
+        padding: 16px 20px;
+        margin-bottom: 10px;
+    }
+    
+    .list-item-content {
+        gap: 14px;
+    }
+    
+    .list-icon {
+        font-size: 1.6rem;
+    }
+    
+    .list-title {
+        font-size: 1.1rem;
+    }
+    
+    .list-btn {
+        padding: 10px 18px;
+        font-size: 0.9rem;
+        min-width: 90px;
+    }
+    
+    .category-list-item:hover {
+        transform: translateX(5px);
+    }
+}
+
+@media (max-width: 480px) {
+    .categories-header h1 {
+        font-size: 1.7rem;
+    }
+    
+    .categories-list {
+        padding: 0 10px;
+    }
+    
+    .category-list-item {
+        padding: 14px 16px;
+        flex-direction: column;
+        gap: 12px;
+        align-items: stretch;
+    }
+    
+    .list-item-content {
+        justify-content: center;
+        gap: 12px;
+    }
+    
+    .list-title {
+        text-align: center;
+        font-size: 1rem;
+    }
+    
+    .list-btn {
+        width: 100%;
+        padding: 14px 20px;
+        font-size: 1rem;
+    }
+    
+    .category-list-item:hover {
+        transform: translateY(-2px);
+    }
+}
+
+/* Mantener compatibilidad con categorías en subcategorías */
 .categorias {
     list-style: none;
 }
