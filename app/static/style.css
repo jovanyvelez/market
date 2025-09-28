@@ -764,7 +764,7 @@ img {
 li button {
     border: none;
     background: none;
-    text-decoration: underline;
+    text-decoration: none;
     cursor: pointer;
     color: blue;
     line-height: 1.8rem;
